@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.gpfcomics.android.ppp"
       android:versionCode="1"
-      android:versionName="1.0">
+      android:versionName="1.0 BETA">
     <uses-sdk android:minSdkVersion="2" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="PPPApplication">
@@ -44,6 +44,17 @@
 			android:allowTaskReparenting="false">
         </activity>
         <activity android:name=".AboutActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false">
+        </activity>
+        <activity android:name=".SettingsActivity"
         	android:label="@string/app_name"
         	android:clearTaskOnLaunch="true"
         	android:noHistory="true"

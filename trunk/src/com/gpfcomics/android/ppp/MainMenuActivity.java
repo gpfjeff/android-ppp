@@ -80,11 +80,14 @@ public class MainMenuActivity extends ListActivity {
 	/** This constant identifies the Delete All option menu */
 	private static final int OPTMENU_DELETE_ALL = Menu.FIRST + 101;
 	
+	/** This constant identifies the Settings option menu */
+	private static final int OPTMENU_SETTINGS = Menu.FIRST + 102;
+
 	/** This constant identifies the Help option menu */
-	private static final int OPTMENU_HELP = Menu.FIRST + 102;
+	private static final int OPTMENU_HELP = Menu.FIRST + 103;
 
 	/** This constant identifies the About option menu */
-	private static final int OPTMENU_ABOUT = Menu.FIRST + 103;
+	private static final int OPTMENU_ABOUT = Menu.FIRST + 104;
 
 	/** This constant identifies the Confirm Delete dialog */
 	private static final int DIALOG_CONFIRM_DELETE = 1000;
@@ -430,6 +433,8 @@ public class MainMenuActivity extends ListActivity {
         		R.string.optmenu_new).setIcon(android.R.drawable.ic_menu_add);
     	menu.add(0, OPTMENU_DELETE_ALL, Menu.NONE,
 				R.string.optmenu_delete_all).setIcon(android.R.drawable.ic_menu_delete);
+    	menu.add(0, OPTMENU_SETTINGS, Menu.NONE,
+				R.string.optmenu_settings).setIcon(android.R.drawable.ic_menu_preferences);
     	menu.add(0, OPTMENU_HELP, Menu.NONE,
 				R.string.optmenu_help).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, OPTMENU_ABOUT, Menu.NONE,
@@ -449,13 +454,17 @@ public class MainMenuActivity extends ListActivity {
 	    	case OPTMENU_DELETE_ALL:
 	    		showDialog(DIALOG_CONFIRM_DELETE_ALL);
 	    		return true;
+	    	// Launch the settings activity:
+	    	case OPTMENU_SETTINGS:
+	    		Intent i2 = new Intent(getBaseContext(), SettingsActivity.class);
+		    	startActivity(i2);
+	    		return true;
 	    	// Launch the help text for this activity:
 	    	case OPTMENU_HELP:
 	    		Toast.makeText(getBaseContext(), R.string.error_not_implemented, Toast.LENGTH_LONG).show();
 	    		return true;
 	    	// Send the user to the About page:
 	    	case OPTMENU_ABOUT:
-	    		//Toast.makeText(getBaseContext(), R.string.error_not_implemented, Toast.LENGTH_LONG).show();
 	    		Intent i3 = new Intent(getBaseContext(), AboutActivity.class);
 		    	startActivity(i3);
 	    		return true;
