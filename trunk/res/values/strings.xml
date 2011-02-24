@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Perfect Paper Passwords</string>
+	<string name="meta_replace_token">xxx</string>
+	<string name="meta_replace_token2">yyy</string>
+    <string name="about_link">https://code.google.com/p/android-ppp/</string>
+    <string name="about_copyright">Copyright 2011, Jeffrey T. Darlington.</string>
+    <string name="cardset_edit_pclength_prompt">Passcode length</string>
+    <string name="cardset_list_main_label">Available Card Sets</string>
+    <string name="cardset_list_new_btn">New</string>
+    <string name="cardset_list_empty_text">Welcome to Perfect Paper Passwords. To begin using this application, you will need to create one or more card sets. You may tap the New button above to create a new card set. Once you have created a card set, this screen will display the list of available card sets in the database.</string>
+    <string name="cardview_card_num_prompt">Card xxx</string>
+    <string name="cardview_passcode_copied">"Passcode at xxx copied to the clipboard.</string>
+    <string name="dialog_clear_password">Are you sure you wish to clear your password? Doing so will delete all data from the database!</string>
+    <string name="dialog_clear_strikes_title">Clear Strikes</string>
+    <string name="dialog_clear_strikes_all_success">Strikes for all cards in this card set have been cleared.</string>
+    <string name="dialog_clear_strikes_all_failure">ERROR: Strikes for the current card set could not be cleared.</string>
+    <string name="dialog_clear_strikes_current_success">Strikes for the current card have been cleared.</string>
+    <string name="dialog_clear_strikes_current_failure">ERROR: Strikes for the current card could not be cleared.</string>
+    <string name="dialog_confirm_clear_all_strikes_title">Confirm Clear All Strikes</string>
+    <string name="dialog_confirm_clear_all_strikes_prompt">Are you sure you wish to clear all strike-out data from the card set \"xxx\"?</string>
+    <string name="dialog_confirm_clear_all_strikes_success">The strike-out data for card set \"xxx\" has been successfully deleted.</string>
+    <string name="dialog_confirm_clear_all_strikes_failure">ERROR: The strike-out data for card set \"xxx\" could not be deleted.</string>
+    <string name="dialog_confirm_delete_title">Confirm Delete</string>
+    <string name="dialog_confirm_delete_prompt">Are you sure you wish to delete the card set \"xxx\"?</string>
+    <string name="dialog_confirm_delete_success">The card set \"xxx\" has been successfully deleted.</string>
+    <string name="dialog_confirm_delete_failure">ERROR: The card set \"xxx\" could not be deleted.</string>
+    <string name="dialog_confirm_delete_all_title">Confirm Delete All</string>
+    <string name="dialog_confirm_delete_all_prompt">Are you sure you wish to delete all card set data? This cannot be undone!</string>
+    <string name="dialog_confirm_delete_all_success">All card set data has been successfully deleted.</string>
+    <string name="dialog_confirm_delete_all_failure">ERROR: Some card set data could not be deleted.</string>
+    <string name="dialog_generating_passwords">Generating passcodes...</string>
+    <string name="dialog_goto_card_title">Go To Card</string>
+    <string name="dialog_goto_card_go_btn">Go</string>
+    <string name="dialog_goto_card_cancel_btn">Cancel</string>
+    <string name="dialog_rename_title">Rename Card Set</string>
+    <string name="dialog_rename_rename_btn">Rename</string>
+    <string name="dialog_rename_success">Card set \"xxx\" has been successfully renamed to \"yyy\".</string>
+    <string name="dialog_rename_failure">ERROR: Card set \"xxx\" could not be renamed.</string>
+    <string name="dialog_rename_invalid_name">ERROR: Card set names must be non-empty.</string>
+    <string name="menu_cardset_options_title">Card Set Options</string>
+    <string name="menu_cardset_options_rename">Rename</string>
+    <string name="menu_cardset_options_clear_strikes">Clear Strikes</string>
+    <string name="menu_cardset_options_delete">Delete</string>
+    <string name="new_card_name_label">Card Set Name:</string>
+    <string name="new_card_name_default">Unnamed Card Set</string>
+    <string name="new_card_numcols_label">Number of Columns:</string>
+    <string name="new_card_numrows_label">Number of Rows:</string>
+    <string name="new_card_pclength_label">Passcode Length:</string>
+    <string name="new_card_alphabet_label">Alphabet:</string>
+    <string name="new_card_seqkey_label">Sequence Key:</string>
+    <string name="new_card_create_btn">Create Card Set</string>
+    <string name="new_card_success">Card set \"xxx\" has been saved successfully.</string>
+    <string name="new_card_failure">ERROR: Card set \"xxx\" could not be saved to the database.</string>
+    <string name="optmenu_about">About</string>
+    <string name="optmenu_clear_password">Clear Password</string>
+    <string name="optmenu_clear_strikes">Clear</string>
+    <string name="optmenu_delete_all">Delete All</string>
+    <string name="optmenu_goto">Go To</string>
+    <string name="optmenu_help">Help</string>
+    <string name="optmenu_new">New</string>
+    <string name="password_version_label">Version xxx</string>
+    <string name="password_prompt_label">Please enter your password:</string>
+    <string name="password_prompt_hint">Enter your password here</string>
+    <string name="password_unlock_btn">Unlock</string>
+    <string name="error_card_build_failed">ERROR: Error building passcodes</string>
+    <string name="error_cardset_not_found">ERROR: The specified card set could not be found.</string>
+    <string name="error_database_cleared_clear_password_failed">ERROR: The database was cleared, but the password could not be cleared.</string>
+    <string name="error_database_not_cleared_clear_password_failed">ERROR: The database could not be cleared. The password has not been cleared.</string>
+    <string name="error_invalid_alphabet">ERROR: Alphabet field cannot be empty. Each character may only be used once.</string>
+    <string name="error_invalid_card_num">ERROR: Invalid card number</string>
+    <string name="error_invalid_password">The password you have entered is invalid. Please try again.</string>
+    <string name="error_invalid_num_columns">ERROR: Number of columns field must contain a positive integer greater than zero and less than 27.</string>
+    <string name="error_invalid_num_rows">ERROR: Number of rows field must contain a positive integer greater than zero.</string>
+    <string name="error_invalid_seqkey">ERROR: Sequence key must be a hexadecimal string 64 characters long.</string>
+    <string name="error_name_field_empty">ERROR: Name field cannot be empty.</string>
+    <string name="error_new_card_launch">ERROR: An error has occurred while launching the new card set activity.</string>
+    <string name="error_not_implemented">ERROR: This function has not been implemented yet. Sorry!</string>
+	<string name="license_short">This program uses code from the jPPP project by Kurt Nelson, which in turn is based a JME phone client by John Graham-Cumming. jPPP is released under the same license as this application: GNU GPL v3.\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.</string>
+	<string name="license_full_url">http://www.gnu.org/licenses/gpl-3.0-standalone.html</string>
+	<string-array name="passcodeLengths">
+		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
+		<item>6</item>
+		<item>7</item>
+		<item>8</item>
+		<item>9</item>
+		<item>10</item>
+		<item>11</item>
+		<item>12</item>
+		<item>13</item>
+		<item>14</item>
+		<item>15</item>
+		<item>16</item>
+	</string-array>
+	<string-array name="clear_toggle_choices">
+		<item>This card only</item>
+		<item>All cards in set</item>
+	</string-array>
+</resources>
