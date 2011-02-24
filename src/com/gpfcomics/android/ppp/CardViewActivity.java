@@ -29,6 +29,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -81,8 +82,11 @@ public class CardViewActivity extends Activity {
 	/** A constant identifying the Clear Toggles option menu item */
 	private static final int OPTMENU_CLEAR_TOGGLES = 54321;
 	
+	/** A constant identifying the Settings option menu item */
+	private static final int OPTMENU_SETTINGS = 54322;
+	
 	/** A constant identifying the Help option menu item */
-	private static final int OPTMENU_HELP = 54322;
+	private static final int OPTMENU_HELP = 54323;
 	
 	/** A convenience constant pointing to the "on" or "struck through" Drawable
 	 *  resource for our card's ToggleButtons. */
@@ -613,7 +617,10 @@ public class CardViewActivity extends Activity {
     		R.string.optmenu_goto).setIcon(android.R.drawable.ic_menu_directions);
     	// Add the "Clear Toggles" menu item:
     	menu.add(0, OPTMENU_CLEAR_TOGGLES, Menu.NONE,
-    		R.string.optmenu_clear_strikes).setIcon(android.R.drawable.ic_menu_delete);
+    		R.string.optmenu_clear_strikes).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+    	// Add the "Settings" menu item:
+    	menu.add(0, OPTMENU_SETTINGS, Menu.NONE,
+				R.string.optmenu_settings).setIcon(android.R.drawable.ic_menu_preferences);
     	// Add the "Help" menu item:
     	menu.add(0, OPTMENU_HELP, Menu.NONE,
             R.string.optmenu_help).setIcon(android.R.drawable.ic_menu_help);
@@ -636,12 +643,17 @@ public class CardViewActivity extends Activity {
 	    	case OPTMENU_CLEAR_TOGGLES:
 	    		showDialog(DIALOG_CLEAR_TOGGLES);
 	    		return true;
+	    	// Launch the settings activity:
+	    	case OPTMENU_SETTINGS:
+	    		Intent i = new Intent(this, SettingsActivity.class);
+		    	startActivity(i);
+	    		return true;
 	    	// If the Help item is selected, open up the help page for this
 	    	// Activity:
 	    	case OPTMENU_HELP:
-	        	//Intent i = new Intent(this, HelpActivity.class);
-	        	//i.putExtra("helptext", R.string.help_text_importexport);
-	        	//startActivity(i);
+	        	//Intent i2 = new Intent(this, HelpActivity.class);
+	        	//i2.putExtra("helptext", R.string.help_text_importexport);
+	        	//startActivity(i2);
 	    		Toast.makeText(this, R.string.error_not_implemented,
 	    				Toast.LENGTH_LONG).show();
 	    		return true;
