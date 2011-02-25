@@ -37,3 +37,13 @@ On the GRC site, it is recommended that users mark or "strike out" used passcode
 For convenience, a facility will also be provided to clear strike-out data en masse. In the card view, strike-outs can be cleared on a card-by-card basis or for the entire card set sequence. From the card set list, all strike-out data can be cleared for the entire set.
 
 As an additional convenience, the user can set a preference to have the passcode copied to the system clipboard when the code is initially "stricken". The passcode can then be pasted into the authentication form where required. Clearing the strike will not copy the passcode, and this functionality can be disabled for greater security or if it is not needed.
+
+= Password Protection =
+
+Android provides several layers of security to protect the data of any one particular application from other applications installed on the system. However, additional security can be provided by controlling access to the application itself. Thus, the user of PPP for Android will have the ability to set a master password to "lock" the application from unauthorized access. The password must be stored security; the current planned implementation is to cryptographically hash the password several times and store the digest in the app's shared preferences file.
+
+If the password is not set, the application skips the password prompt and goes directly to the card list view (i.e. the main menu). If a password has been set, launching the application instead takes the user to a password prompt. If the password is not supplied correctly, access to the rest of the application's activities will be denied. At this time there are no plans to limit the number invalid password attempts although this may be a possible enhancement for later.
+
+In the advent that the user forgets their password, recovery will not be an option if the password is stored as a cryptographic hash. We must give the user the ability to regain access to the application while providing security to their card set data. While some versions of Android (2.0+) provide a facility to clear user data without uninstalling the application, this utility is buried deep in the system preferences. The current plan is to provide an option in the password prompt menu to allow the user to clear the password. However, doing so will wipe the database and remove all card set and strike-out data.
+
+After the user has been authenticated, the user can clear or change the password within the app's settings activity.
