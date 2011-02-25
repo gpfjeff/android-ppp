@@ -104,10 +104,18 @@ public class Cardset {
 	 *  demonstration page on the GRC site. */
 	public static final String AGGRESSIVE_ALPHABET =
 		"!\"#$%&'()*+,-./23456789:;<=>?@ABCDEFGHJKLMNOPRSTUVWXYZ[\\]^_abcdefghijkmnopqrstuvwxyz{|}~";
-	
 	/** A regular expression pattern used for testing sequence keys values to
 	 *  make sure they are valid.  Sequence keys must be 64-character hex strings. */
 	public static final String SEQUENCE_KEY_REGEX = "^[0-9a-fA-F]{64}$";
+	/** The maximum practical width in displayed characters that will fit into
+	 *  portrait orientation on a typical Android device screen.  Any product of the
+	 *  number of columns and the passcode length that is greater than this should
+	 *  force landscape orientation in the card view display. */
+	public static final int MAX_PORTRAIT_WIDTH = 28; 
+	/** The maximum practical width in displayed characters of any card.  The product
+	 *  of the number of columns and the passcode length must be less than or equal
+	 *  to this value or we won't be able to display it. */
+	public static final int MAX_CARD_WIDTH = 52;
 	
     /* ####### Private Members ####### */
 
@@ -168,7 +176,7 @@ public class Cardset {
      */
     public Cardset(long cardsetId, String name, int numColumns, int numRows, 
     		int passcodeLength, String alphabet, String sequenceKey, int lastCard) {
-    	if (isValidCardsetId(cardsetId))
+    	if (!isValidCardsetId(cardsetId))
     		throw new IllegalArgumentException("Invalid card set ID number");
     	else if (!isValidNumberOfColumns(numColumns))
     		throw new IllegalArgumentException("Invalid number of columns");
@@ -176,7 +184,7 @@ public class Cardset {
     		throw new IllegalArgumentException("Invalid number of rows");
     	else if (!isValidPasscodeLength(passcodeLength))
     		throw new IllegalArgumentException("Invalid passcode length");
-    	else if (isValidCardNumber(lastCard))
+    	else if (!isValidCardNumber(lastCard))
     		throw new IllegalArgumentException("Invalid card number");
     	else if (!isValidName(name))
     		throw new IllegalArgumentException("Name is empty");
@@ -184,6 +192,8 @@ public class Cardset {
     		throw new IllegalArgumentException("Sequence Key is invalid");
     	else if (!isValidAlphabet(alphabet))
     		throw new IllegalArgumentException("Alphabet is empty");
+    	else if (!fitsMaxCardWidth(numColumns, passcodeLength))
+    		throw new IllegalArgumentException("Exceeds maximum card width");
     	else {
 	    	this.cardsetId = cardsetId;
 	    	this.name = name;
@@ -270,14 +280,19 @@ public class Cardset {
     
     /**
      * Set the number of columns per card.  As a practical limitation, the number
-     * of columns is limited to 26, which is the number of letters in the English
-     * alphabet.  (Letters are used to display the column headings.)
+     * of columns is limited to 13, which is the practical limit for many Android
+     * displays.
      * @param numColumns The new number of columns
      * @throws IllegalArgumentException Thrown if the specified number is invalid
+     * or if the specified value and the passcode length will produce a card that is
+     * too wide for us to display
      */
     public void setNumberOfColumns(int numColumns) {
-    	if (isValidNumberOfColumns(numColumns)) this.numColumns = numColumns;
-    	else throw new IllegalArgumentException("Invalid number of columns");
+    	if (!isValidNumberOfColumns(numColumns))
+    		throw new IllegalArgumentException("Invalid number of columns");
+    	if (!fitsMaxCardWidth(numColumns, passcodeLength))
+    		throw new IllegalArgumentException("Exceeds maximum card width");
+   		this.numColumns = numColumns;
     }
     
     /**
@@ -294,11 +309,15 @@ public class Cardset {
      * Set the passcode length.  Passcodes must be between 2 and 16 characters long.
      * @param passcodeLength The new passcode length
      * @throws IllegalArgumentException Thrown if the specified number is invalid
+     * or if the specified value and the number of columns will produce a card that is
+     * too wide for us to display
      */
     public void setPasscodeLength(int passcodeLength) {
-    	if (isValidPasscodeLength(passcodeLength))
-    		this.passcodeLength = passcodeLength;
-    	else throw new IllegalArgumentException("Invalid passcode length");
+    	if (!isValidPasscodeLength(passcodeLength))
+    		throw new IllegalArgumentException("Invalid passcode length");
+    	if (!fitsMaxCardWidth(numColumns, passcodeLength))
+    		throw new IllegalArgumentException("Exceeds maximum card width");
+   		this.passcodeLength = passcodeLength;
    	}
     
     /**
@@ -380,15 +399,16 @@ public class Cardset {
     /**
      * Validate a potential number of columns.  The number of columns must be a
      * positive integer less than or equal to 26.  The cap at 26 is an implementation
-     * detail unique to our app, rather than a requirement of the PPP spec; we use
-     * English alphabet letters for column headings, and by the time we exhaust these
-     * it will be overkill for Android displays anyway
+     * detail unique to our app, rather than a requirement of the PPP spec; any number
+     * of columns beyond 26 cannot be practically displayed on many Android screens.
+     * See Cardset.fitsMaxCardWidth().
      * @param number A number String to validate
      * @return True if valid, false otherwise
      */
     public static boolean isValidNumberOfColumns(String number) {
     	if (!isValidPositiveIntegerString(number)) return false;
     	int integer = Integer.parseInt(number);
+    	// Why 26?  See isValidNumberOfColumns(int) below:
     	if (integer > 26) return false;
     	else return true;
     }
@@ -396,13 +416,20 @@ public class Cardset {
     /**
      * Validate a potential number of columns.  The number of columns must be a
      * positive integer less than or equal to 26.  The cap at 26 is an implementation
-     * detail unique to our app, rather than a requirement of the PPP spec; we use
-     * English alphabet letters for column headings, and by the time we exhaust these
-     * it will be overkill for Android displays anyway
+     * detail unique to our app, rather than a requirement of the PPP spec; any number
+     * of columns beyond 26 cannot be practically displayed on many Android screens.
+     * See Cardset.fitsMaxCardWidth().
      * @param number An integer to validate
      * @return True if valid, false otherwise
      */
     public static boolean isValidNumberOfColumns(int number) {
+    	// Why 26?  Well, the maximum card width in characters is MAX_CARD_WIDTH (52).
+    	// This is the product of the default number of columns (7) and the default
+    	// passcode length (4).  Passcodes by definition can not be shorter than 2
+    	// characters, giving us a maximum number of columns of 52 / 2 = 26.  Note
+    	// that this alone does not validate if a given number of columns are OK;
+    	// this just checks the outer bounds.  We also need to check fitsMaxCardWidth()
+    	// to be absolutely certain.
     	if (number < 1 || number > 26) return false;
     	else return true;
     }    
@@ -415,6 +442,17 @@ public class Cardset {
      */
     public static boolean isValidNumberOfRows(String number) {
     	if (!isValidPositiveIntegerString(number)) return false;
+    	else return true;
+    }
+    
+    /**
+     * Validate a potential number of rows.  The number of rows must be a positive
+     * integer greater than zero.
+     * @param number An integer to validate
+     * @return True if valid, false otherwise
+     */
+    public static boolean isValidNumberOfRows(int number) {
+    	if (number < 1) return false;
     	else return true;
     }
     
@@ -443,17 +481,6 @@ public class Cardset {
     }
     
     /**
-     * Validate a potential number of rows.  The number of rows must be a positive
-     * integer greater than zero.
-     * @param number An integer to validate
-     * @return True if valid, false otherwise
-     */
-    public static boolean isValidNumberOfRows(int number) {
-    	if (number < 1) return false;
-    	else return true;
-    }
-    
-    /**
      * Validate an alphabet string.  Alphabets must be non-empty, must not consist
      * entirely of white space, must be at least two characters long, and each
      * character may only appear once in the string.
@@ -471,9 +498,6 @@ public class Cardset {
 		// Then we'll walk through the array, adding each character to the HashSet
 		// one by one.  HashSet.add() returns false if we try to add the same item
 		// more than once, so that should be a decent test.
-		// TODO (Or is it?  We have to use Character objects here rather than primitives,
-		// so will adding two different Characters based on the same character be
-		// the same or different?  This definitely needs to be tested.)
 		char[] chars = alphabet.toCharArray();
 		HashSet<Character> charHash = new HashSet<Character>();
 		for (int i = 0; i < chars.length; i++) {
@@ -502,6 +526,23 @@ public class Cardset {
      */
     public static boolean isValidCardNumber(int card) {
     	if (card >= FIRST_CARD && card <= FINAL_CARD) return true;
+    	else return false;
+    }
+    
+    /**
+     * Check the specified number of columns and the passcode length and see if the
+     * card they will produce will fit within the typical Android display.  Note that
+     * this assumes the input values are valid for their respective constraints, so
+     * they should be validated with the other isValid...() methods first before
+     * calling this.  If the combination of columns and length will not fit, the
+     * user should be forced to change these values before the card set can be
+     * created.
+     * @param numColumns The number of columns
+     * @param passcodeLength The password length
+     * @return True if the specified combination will fit, false otherwise.
+     */
+    public static boolean fitsMaxCardWidth(int numColumns, int passcodeLength) {
+    	if (numColumns * passcodeLength <= MAX_CARD_WIDTH) return true;
     	else return false;
     }
     

@@ -86,9 +86,10 @@
     <string name="error_invalid_alphabet">ERROR: Alphabet field cannot be empty. Each character may only be used once.</string>
     <string name="error_invalid_card_num">ERROR: Invalid card number</string>
     <string name="error_invalid_password">The password you have entered is invalid. Please try again.</string>
-    <string name="error_invalid_num_columns">ERROR: Number of columns field must contain a positive integer greater than zero and less than 27.</string>
+    <string name="error_invalid_num_columns">ERROR: Number of columns field must contain a positive integer greater than 0 and less than 27.</string>
     <string name="error_invalid_num_rows">ERROR: Number of rows field must contain a positive integer greater than zero.</string>
     <string name="error_invalid_seqkey">ERROR: Sequence key must be a hexadecimal string 64 characters long.</string>
+    <string name="error_invalid_card_width">ERROR: The number of columns times the passcode length must be less than 53. Please change one of these values.</string>
     <string name="error_name_field_empty">ERROR: Name field cannot be empty.</string>
     <string name="error_new_card_launch">ERROR: An error has occurred while launching the new card set activity.</string>
     <string name="error_new_password_empty">ERROR: Passwords cannot be empty.</string>

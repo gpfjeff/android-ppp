@@ -269,15 +269,15 @@ public class CardDBAdapter {
     		// populate it:
     		if (c != null) {
     			c.moveToFirst();
-    			Cardset cs = new Cardset();
-    			cs.setCardsetId(c.getLong(c.getColumnIndex(KEY_CARDSETID)));
-    			cs.setName(c.getString(c.getColumnIndex(KEY_NAME)));
-    			cs.setSequenceKey(c.getString(c.getColumnIndex("sequence_key")));
-    			cs.setAlphabet(c.getString(c.getColumnIndex("alphabet")));
-    			cs.setNumberOfColumns(c.getInt(c.getColumnIndex("columns")));
-    			cs.setNumberOfRows(c.getInt(c.getColumnIndex("rows")));
-    			cs.setPasscodeLength(c.getInt(c.getColumnIndex("passcode_length")));
-    			cs.setLastCard(c.getInt(c.getColumnIndex("last_card")));
+    			Cardset cs = new Cardset(
+    					c.getLong(c.getColumnIndex(KEY_CARDSETID)),
+    					c.getString(c.getColumnIndex(KEY_NAME)),
+    					c.getInt(c.getColumnIndex("columns")),
+    					c.getInt(c.getColumnIndex("rows")), 
+    					c.getInt(c.getColumnIndex("passcode_length")),
+    					c.getString(c.getColumnIndex("alphabet")),
+    					c.getString(c.getColumnIndex("sequence_key")),
+    					c.getInt(c.getColumnIndex("last_card")));
     			c.close();
     			return cs;
     		// If the query didn't return anything, return null:

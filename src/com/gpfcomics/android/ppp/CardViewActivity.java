@@ -30,6 +30,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -199,6 +200,18 @@ public class CardViewActivity extends Activity {
 	        // is the product of rows and columns.
 	        totalPasscodes = cardSet.getNumberOfColumns() *
 	        	cardSet.getNumberOfRows();
+	        
+	        // ScrollView provides us with a mechanism for scrolling vertically, but
+	        // not horizontally.  This puts a limit on how many columns we can display.
+	        // If the product of the number of columns and the passcode length is
+	        // greater than a certain value, force the card to be displayed in
+	        // landscape mode only.  Otherwise, let whatever default take precedence
+	        // for orientation (user choice, the sensor, etc.).
+	        int charWidth = cardSet.getNumberOfColumns() * cardSet.getPasscodeLength();
+	        if (charWidth > Cardset.MAX_PORTRAIT_WIDTH)
+	        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+	        else
+	        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 	        
 	        // Initialize the PPP engine given the parameters specified within
 	        // the card set object.  I'm not sure why the other parameters besides

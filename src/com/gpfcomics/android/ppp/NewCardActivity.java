@@ -28,6 +28,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -135,16 +137,28 @@ public class NewCardActivity extends Activity {
 	        });
 	        
 	        // Like the above, check the number of columns box when it loses focus.
-	        // Here, we want to make sure the value is a positive integer greater
-	        // than zero but less than 27.  (Letters of the English alphabet are used
-	        // for the column headings, so we're only going to allow 26 columns.)
+	        // Here, we want to make sure the value is a positive integer, and that
+	        // the product of it and the passcode length must be less than the
+	        // maximum we'll allow.  Otherwise, we won't be able to display it.
 	        txtNumColumns.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 				public void onFocusChange(View v, boolean hasFocus) {
 					if (!hasFocus) {
+						// First, is this a possible valid number of columns?
 						String numColumns = ((Editable)txtNumColumns.getText()).toString();
 						if (Cardset.isValidNumberOfColumns(numColumns)) {
+							// Now look to see if this and the passcode length will
+							// still fit in a card we can display:
 							int numCols = Integer.parseInt(numColumns);
-							cardSet.setNumberOfColumns(numCols);
+							if (Cardset.fitsMaxCardWidth(numCols, 
+									cardSet.getPasscodeLength())) {
+								cardSet.setNumberOfColumns(numCols);
+							// We can't display a card this big:
+							} else {
+								Toast.makeText(v.getContext(), R.string.error_invalid_card_width,
+										Toast.LENGTH_LONG).show();
+								//v.requestFocus();
+							}
+						// The number is not valid:
 						} else {
 							Toast.makeText(v.getContext(), R.string.error_invalid_num_columns,
 									Toast.LENGTH_LONG).show();
@@ -162,7 +176,7 @@ public class NewCardActivity extends Activity {
 						String numRows = ((Editable)txtNumRows.getText()).toString();
 						if (Cardset.isValidNumberOfRows(numRows)) {
 							int numRowsI = Integer.parseInt(numRows);
-							cardSet.setNumberOfColumns(numRowsI);
+							cardSet.setNumberOfRows(numRowsI);
 						} else {
 							Toast.makeText(v.getContext(), R.string.error_invalid_num_rows,
 									Toast.LENGTH_LONG).show();
@@ -211,6 +225,32 @@ public class NewCardActivity extends Activity {
 				}
 	        });
 	        
+	        // When the passcode length spinner changes, the only thing we really need
+	        // to validate is the maximum width of the card:
+	        spinPasscodeLength.setOnItemSelectedListener(new OnItemSelectedListener() {
+				public void onItemSelected(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					// Decode the passcode length from the item position:
+					int passcodeLength = spinPasscodeLength.getSelectedItemPosition()
+						+ PASSCODE_SPINNER_OFFSET;
+					// Now check to see if it still works when combined with the
+					// number of columns:
+					if (Cardset.fitsMaxCardWidth(cardSet.getNumberOfColumns(),
+							passcodeLength))
+						cardSet.setPasscodeLength(passcodeLength);
+					// The combined card is too wide to display:
+					else Toast.makeText(arg0.getContext(),
+								R.string.error_invalid_card_width,
+								Toast.LENGTH_LONG).show();
+				}
+				// I'm not sure if this is needed:
+				public void onNothingSelected(AdapterView<?> arg0) {
+					//spinPasscodeLength.setSelection(Cardset.DEFAULT_PASSCODE_LENGTH -
+					//		PASSCODE_SPINNER_OFFSET);
+				}
+	        	
+	        });
+	        
 	        // Now define the Add button's click listener.  This will, in affect,
 	        // duplicate much of the effort of the focus listeners above, but that's
 	        // necessary since we can't guarantee they'll fire when this button is
@@ -250,43 +290,54 @@ public class NewCardActivity extends Activity {
 								Toast.LENGTH_LONG).show();
 						//txtSequenceKey.requestFocus();
 					// We don't need to validate the passcode length spinner since it
-					// can only be values that we specify.  If all the inputs look good,
-					// try to create and save our card set:
+					// can only be values that we specify.  If all the inputs look good
+					// so far:
 					} else {
-						// Populate the card set object with the data from the UI.
-						// Note that we trim the name and alphabet to remove white
-						// space; we don't need to do this with the sequence key since
-						// the regex won't permit white space.  The integers need to
-						// be parsed (they should be valid if we got here) and we
-						// need to decode the passcode spinner to get the length.
-						cardSet.setName(name.trim());
+						// These should now be safe parses:
 						int numCols = Integer.parseInt(numColumns);
-						cardSet.setNumberOfColumns(numCols);
 						int numRowsI = Integer.parseInt(numRows);
-						cardSet.setNumberOfRows(numRowsI);
-						cardSet.setAlphabet(alpha.trim());
-						cardSet.setSequenceKey(seqKey);
-						cardSet.setPasscodeLength(spinPasscodeLength.getSelectedItemPosition()
-								+ PASSCODE_SPINNER_OFFSET);
-						// Now that the card set object holds the data, try to save
-						// it to the database.  This will return the card set's internal
-						// DB ID if successful, or the Cardset.NOID constant if it
-						// fails.  Give the user feedback on our success.
-						cardSet.setCardsetId(DBHelper.saveCardset(cardSet));
-						if (cardSet.getCardsetId() != Cardset.NOID) {
-							Toast.makeText(v.getContext(), 
-									getResources().getString(R.string.new_card_success).replace(getResources().getString(R.string.meta_replace_token), cardSet.getName()),
+						// And we're going to need the passcode length for the
+						// next test:
+						int passcodeLength = spinPasscodeLength.getSelectedItemPosition()
+							+ PASSCODE_SPINNER_OFFSET;
+						// There's one final validation step to take.  Make sure the
+						// combined number of columns and passcode length will actually
+						// fit in the card view display:
+						if (!Cardset.fitsMaxCardWidth(numCols, passcodeLength)) {
+							Toast.makeText(v.getContext(), R.string.error_invalid_seqkey,
 									Toast.LENGTH_LONG).show();
-							setResult(MainMenuActivity.RESPONSE_SUCCESS);
+						// If we passed that step, it's time to create our card set:
 						} else {
-							Toast.makeText(v.getContext(),
-									getResources().getString(R.string.new_card_failure).replace(getResources().getString(R.string.meta_replace_token), cardSet.getName()),
-									Toast.LENGTH_LONG).show();
-							setResult(MainMenuActivity.RESPONSE_ERROR);
+							// Populate the card set object with the data from the UI.
+							// Note that we trim the name and alphabet to remove white
+							// space; we don't need to do this with the sequence key since
+							// the regex won't permit white space.
+							cardSet.setName(name.trim());
+							cardSet.setNumberOfColumns(numCols);
+							cardSet.setNumberOfRows(numRowsI);
+							cardSet.setAlphabet(alpha.trim());
+							cardSet.setSequenceKey(seqKey);
+							cardSet.setPasscodeLength(passcodeLength);
+							// Now that the card set object holds the data, try to save
+							// it to the database.  This will return the card set's internal
+							// DB ID if successful, or the Cardset.NOID constant if it
+							// fails.  Give the user feedback on our success.
+							cardSet.setCardsetId(DBHelper.saveCardset(cardSet));
+							if (cardSet.getCardsetId() != Cardset.NOID) {
+								Toast.makeText(v.getContext(), 
+										getResources().getString(R.string.new_card_success).replace(getResources().getString(R.string.meta_replace_token), cardSet.getName()),
+										Toast.LENGTH_LONG).show();
+								setResult(MainMenuActivity.RESPONSE_SUCCESS);
+							} else {
+								Toast.makeText(v.getContext(),
+										getResources().getString(R.string.new_card_failure).replace(getResources().getString(R.string.meta_replace_token), cardSet.getName()),
+										Toast.LENGTH_LONG).show();
+								setResult(MainMenuActivity.RESPONSE_ERROR);
+							}
+							// At this point we've done all we can.  Close this activity
+							// and return to the main menu:
+							finish();
 						}
-						// At this point we've done all we can.  Close this activity
-						// and return to the main menu:
-						finish();
 					}
 				}
 	    	});
