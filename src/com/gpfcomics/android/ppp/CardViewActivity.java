@@ -203,12 +203,10 @@ public class CardViewActivity extends Activity {
 	        
 	        // ScrollView provides us with a mechanism for scrolling vertically, but
 	        // not horizontally.  This puts a limit on how many columns we can display.
-	        // If the product of the number of columns and the passcode length is
-	        // greater than a certain value, force the card to be displayed in
-	        // landscape mode only.  Otherwise, let whatever default take precedence
-	        // for orientation (user choice, the sensor, etc.).
-	        int charWidth = cardSet.getNumberOfColumns() * cardSet.getPasscodeLength();
-	        if (charWidth > Cardset.MAX_PORTRAIT_WIDTH)
+	        // If the card is too wide to be displayed in portrait mode, force the
+	        // card to be displayed in landscape mode only.  Otherwise, let whatever
+	        // default take precedence for orientation (user choice, the sensor, etc.).
+	        if (cardSet.requiresLandscape())
 	        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	        else
 	        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -352,6 +350,13 @@ public class CardViewActivity extends Activity {
 	        
 	    	// Get the table layout where we'll build our card:
 	        TableLayout tl = (TableLayout)findViewById(R.id.cardtable);
+	        // We need some sort of placeholder to put as the toggle button on/off
+	        // text.  We'll use a StringBuilder to make a string the same length
+	        // as the passcodes.
+	        StringBuilder sb = new StringBuilder(cardSet.getPasscodeLength());
+	        for (int i = 0; i < cardSet.getPasscodeLength(); i++)
+	        	sb.append("x");
+	        String dummy = sb.toString();
 	        // We'll loop through each row and build it dynamically.  Conveniently,
 	        // row zero will be our header, which means our actual button rows will
 	        // start at one, matching the value we want in the database.
@@ -410,8 +415,8 @@ public class CardViewActivity extends Activity {
 	            			// we'll be resetting these values later in rebuildCard(),
 	            			// this isn't a major issue.  For now, set the text to
 	            			// some place holder.
-	            			tb.setTextOn("xxxx");
-	            			tb.setTextOff("xxxx");
+	            			tb.setTextOn(dummy);
+	            			tb.setTextOff(dummy);
 	            			tb.setGravity(Gravity.CENTER);
 	                		tb.setPadding(2, 2, 2, 2);
 	                		// I don't think the typeface is working either:
@@ -450,6 +455,7 @@ public class CardViewActivity extends Activity {
 	        // a lot, so we'll put that in its own method.  This has the added benefit
 	        // of getting around the weird state text anomaly mentioned above.
 	        rebuildCard();
+
 	    // This should be prettier, but catch any errors and redisplay them to the
 	    // user.  This needs to be cleaned up and the text internationalized before
 	    // going public.

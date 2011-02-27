@@ -111,11 +111,11 @@ public class Cardset {
 	 *  portrait orientation on a typical Android device screen.  Any product of the
 	 *  number of columns and the passcode length that is greater than this should
 	 *  force landscape orientation in the card view display. */
-	public static final int MAX_PORTRAIT_WIDTH = 28; 
+	public static final int MAX_PORTRAIT_WIDTH = 34; 
 	/** The maximum practical width in displayed characters of any card.  The product
 	 *  of the number of columns and the passcode length must be less than or equal
 	 *  to this value or we won't be able to display it. */
-	public static final int MAX_CARD_WIDTH = 52;
+	public static final int MAX_CARD_WIDTH = 60;
 	
     /* ####### Private Members ####### */
 
@@ -369,6 +369,27 @@ public class Cardset {
     	if (lastCard != FINAL_CARD) lastCard++;
     }
     
+    /**
+     * Get the calculated card width for this card set, based on the number of
+     * columns and the passcode length
+     * @return An integer indicating the relative width of the card.  This can be
+     * used in comparisons against MAX_PORTRAIT_WIDTH or MAX_CARD_WIDTH.
+     */
+    public int getCardWidth() {
+    	return calculateCardWdith(numColumns, passcodeLength);
+    }
+    
+    /**
+     * Indicates whether or not this card set requires landscape orientation for
+     * display.  If this returns true, the card view should only display cards
+     * for this set in landscape.  If this returns false, either landscape or
+     * portrait can be used, whichever the user desires. 
+     * @return True if landscape orientation is required, false otherwise
+     */
+    public boolean requiresLandscape() {
+    	return calculateCardWdith(numColumns, passcodeLength) > MAX_PORTRAIT_WIDTH;
+    }
+    
     /* ####### Public Static Methods ####### */
     
     /**
@@ -398,9 +419,9 @@ public class Cardset {
     
     /**
      * Validate a potential number of columns.  The number of columns must be a
-     * positive integer less than or equal to 26.  The cap at 26 is an implementation
+     * positive integer less than or equal to 20.  The cap at 20 is an implementation
      * detail unique to our app, rather than a requirement of the PPP spec; any number
-     * of columns beyond 26 cannot be practically displayed on many Android screens.
+     * of columns beyond 20 cannot be practically displayed on many Android screens.
      * See Cardset.fitsMaxCardWidth().
      * @param number A number String to validate
      * @return True if valid, false otherwise
@@ -408,29 +429,29 @@ public class Cardset {
     public static boolean isValidNumberOfColumns(String number) {
     	if (!isValidPositiveIntegerString(number)) return false;
     	int integer = Integer.parseInt(number);
-    	// Why 26?  See isValidNumberOfColumns(int) below:
-    	if (integer > 26) return false;
+    	// Why 20?  See isValidNumberOfColumns(int) below:
+    	if (integer > 20) return false;
     	else return true;
     }
     
     /**
      * Validate a potential number of columns.  The number of columns must be a
-     * positive integer less than or equal to 26.  The cap at 26 is an implementation
+     * positive integer less than or equal to 20.  The cap at 20 is an implementation
      * detail unique to our app, rather than a requirement of the PPP spec; any number
-     * of columns beyond 26 cannot be practically displayed on many Android screens.
+     * of columns beyond 20 cannot be practically displayed on many Android screens.
      * See Cardset.fitsMaxCardWidth().
      * @param number An integer to validate
      * @return True if valid, false otherwise
      */
     public static boolean isValidNumberOfColumns(int number) {
-    	// Why 26?  Well, the maximum card width in characters is MAX_CARD_WIDTH (52).
-    	// This is the product of the default number of columns (7) and the default
-    	// passcode length (4).  Passcodes by definition can not be shorter than 2
-    	// characters, giving us a maximum number of columns of 52 / 2 = 26.  Note
-    	// that this alone does not validate if a given number of columns are OK;
-    	// this just checks the outer bounds.  We also need to check fitsMaxCardWidth()
+    	// Why 20?  Well, the maximum card width in characters is MAX_CARD_WIDTH (60).
+    	// This is number was something I found through a lot of trial and error.
+    	//Passcodes by definition can not be shorter than 2 characters, giving us a
+    	// maximum number of columns of (60 + 1) / 3 = 20 (rounded down).  Note that
+    	// this alone does not validate if a given number of columns are OK; this
+    	// just checks the outer bounds.  We also need to check fitsMaxCardWidth()
     	// to be absolutely certain.
-    	if (number < 1 || number > 26) return false;
+    	if (number < 1 || number > 20) return false;
     	else return true;
     }    
     
@@ -538,12 +559,37 @@ public class Cardset {
      * user should be forced to change these values before the card set can be
      * created.
      * @param numColumns The number of columns
-     * @param passcodeLength The password length
+     * @param passcodeLength The passcode length
      * @return True if the specified combination will fit, false otherwise.
      */
     public static boolean fitsMaxCardWidth(int numColumns, int passcodeLength) {
-    	if (numColumns * passcodeLength <= MAX_CARD_WIDTH) return true;
+    	if (calculateCardWdith(numColumns, passcodeLength) <= MAX_CARD_WIDTH) return true;
     	else return false;
+    }
+    
+    /**
+     * Calculate the approximate width of a card with the given number of columns
+     * and passcode length.  Note that this does not validate that the input values
+     * are valid, nor does it indicate whether or not the calculated width will
+     * fit inside the maximum card width size.  This only returns what the card
+     * size will be for the given inputs.  Use fitsMaxCardWidth() to validate this
+     * size.
+     * @param numColumns The number of columns
+     * @param passcodeLength The passcode length
+     * @return The calculated card width
+     */
+    public static int calculateCardWdith(int numColumns, int passcodeLength) {
+    	// OK... This took a lot of trial and error to figure out.  Based on the
+    	// font size we chose (which we can't really make smaller or it won't be
+    	// practical), I found a formula that gives a good approximation of how
+    	// many columns we can have based on the passcode length.  The useful
+    	// characters will be the number of columns times the passcode length.
+    	// But... we have to take into account the space between columns as well.
+    	// At its smallest, that's around one character width.  So, if we add
+    	// in the number of columns minus one, that will give a good approximation
+    	// of the between column space.  As long as the value of ths formula is
+    	// less that the maximum card width, we should be OK.
+    	return numColumns * passcodeLength + numColumns - 1;
     }
     
     /* ####### Private Static Methods ####### */
