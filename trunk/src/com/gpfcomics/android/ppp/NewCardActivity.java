@@ -228,20 +228,25 @@ public class NewCardActivity extends Activity {
 	        // When the passcode length spinner changes, the only thing we really need
 	        // to validate is the maximum width of the card:
 	        spinPasscodeLength.setOnItemSelectedListener(new OnItemSelectedListener() {
-				public void onItemSelected(AdapterView<?> arg0, View arg1,
-						int arg2, long arg3) {
+				public void onItemSelected(AdapterView<?> parent, View v,
+						int position, long id) {
 					// Decode the passcode length from the item position:
-					int passcodeLength = spinPasscodeLength.getSelectedItemPosition()
-						+ PASSCODE_SPINNER_OFFSET;
+					int passcodeLength = position + PASSCODE_SPINNER_OFFSET;
 					// Now check to see if it still works when combined with the
-					// number of columns:
+					// number of columns.  If it does, set the new passcode length:
 					if (Cardset.fitsMaxCardWidth(cardSet.getNumberOfColumns(),
 							passcodeLength))
 						cardSet.setPasscodeLength(passcodeLength);
-					// The combined card is too wide to display:
-					else Toast.makeText(arg0.getContext(),
+					// Otherwise, we need to complain.  We'll also set the reset
+					// the spinner back to the original value; otherwise the number
+					// of columns validation won't work properly.
+					else {
+						Toast.makeText(parent.getContext(),
 								R.string.error_invalid_card_width,
 								Toast.LENGTH_LONG).show();
+						spinPasscodeLength.setSelection(cardSet.getPasscodeLength() -
+								PASSCODE_SPINNER_OFFSET);
+					}
 				}
 				// I'm not sure if this is needed:
 				public void onNothingSelected(AdapterView<?> arg0) {
@@ -304,7 +309,7 @@ public class NewCardActivity extends Activity {
 						// combined number of columns and passcode length will actually
 						// fit in the card view display:
 						if (!Cardset.fitsMaxCardWidth(numCols, passcodeLength)) {
-							Toast.makeText(v.getContext(), R.string.error_invalid_seqkey,
+							Toast.makeText(v.getContext(), R.string.error_invalid_card_width,
 									Toast.LENGTH_LONG).show();
 						// If we passed that step, it's time to create our card set:
 						} else {
