@@ -10,7 +10,8 @@
     <string name="cardset_list_new_btn">New</string>
     <string name="cardset_list_empty_text">Welcome to Perfect Paper Passwords. To begin using this application, you will need to create one or more card sets. You may tap the New button above to create a new card set. Once you have created a card set, this screen will display the list of available card sets in the database.</string>
     <string name="cardview_card_num_prompt">Card xxx</string>
-    <string name="cardview_passcode_copied">"Passcode at xxx copied to the clipboard.</string>
+    <string name="cardview_passcode_copied">Passcode at xxx copied to the clipboard.</string>
+    <string name="cardview_gesture_library_error">ERROR: Could not load gesture library. Gestures currently disabled.</string>
     <string name="dialog_clear_password">Are you sure you wish to clear your password? Doing so will delete all data from the database!</string>
     <string name="dialog_clear_strikes_title">Clear Strikes</string>
     <string name="dialog_clear_strikes_all_success">Strikes for all cards in this card set have been cleared.</string>
