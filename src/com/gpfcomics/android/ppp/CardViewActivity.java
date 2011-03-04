@@ -24,6 +24,8 @@
 */
 package com.gpfcomics.android.ppp;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -32,6 +34,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
+import android.gesture.Gesture;
+import android.gesture.GestureLibraries;
+import android.gesture.GestureLibrary;
+import android.gesture.GestureOverlayView;
+import android.gesture.Prediction;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,7 +72,8 @@ import com.gpfcomics.android.ppp.jppp.PPPengine;;
  * @version 1.0
  * @since 1.0
  */
-public class CardViewActivity extends Activity {
+public class CardViewActivity extends Activity implements
+	GestureOverlayView.OnGesturePerformedListener {
 	
 	/** A constant indicating that we should show the progress dialog during
 	 *  the card rebuilding process. */
@@ -126,6 +134,12 @@ public class CardViewActivity extends Activity {
 	
 	/** The card number label */
 	private TextView lblCardNumber = null;
+	
+	/** The gesture overlay, so we can process swipe gestures */
+	private GestureOverlayView gestureOverlay = null;
+	
+	/** The gesture library containing our recognized gestures */
+	private GestureLibrary gestureLibrary = null;
 	
 	/** A handy reference to the ProgressDialog used when rebuilding cards */
 	private ProgressDialog progressDialog = null;
@@ -222,10 +236,22 @@ public class CardViewActivity extends Activity {
 	    	ppp = new PPPengine(cardSet.getSequenceKey());
 	        
 	    	// Get handier references to our buttons and labels:
-	        btnPrevious = (Button)this.findViewById(R.id.card_previous_button);
-	        btnNext = (Button)this.findViewById(R.id.card_next_button);
-	        lblCardTitle = (TextView)this.findViewById(R.id.card_title_label);
-	        lblCardNumber = (TextView)this.findViewById(R.id.card_number_label);
+	        btnPrevious = (Button)findViewById(R.id.card_previous_button);
+	        btnNext = (Button)findViewById(R.id.card_next_button);
+	        lblCardTitle = (TextView)findViewById(R.id.card_title_label);
+	        lblCardNumber = (TextView)findViewById(R.id.card_number_label);
+	        gestureOverlay = (GestureOverlayView)findViewById(R.id.gestureOverlay);
+	        
+	        // Attempt to load the gesture library from our raw resources.  If
+	        // successfully, register ourselves as a gesture listener so the
+	        // gestures can be processed.  Otherwise, display an error and don't
+	        // listen for gestures.  All the other UI elements should work just
+	        // fine without them.
+	        gestureLibrary = GestureLibraries.fromRawResource(this, R.raw.gestures);
+	        if (gestureLibrary.load())
+	        	gestureOverlay.addOnGesturePerformedListener(this);
+	        else Toast.makeText(this, R.string.cardview_gesture_library_error,
+	        		Toast.LENGTH_LONG).show();
 	        
 	        // Set the labels to their initial values.  The card set title won't
 	        // change, but the card number will as we scroll through cards.
@@ -244,37 +270,13 @@ public class CardViewActivity extends Activity {
 	        // Set the Previous button listener:
 	        btnPrevious.setOnClickListener(new OnClickListener() {
 				public void onClick(View arg0) {
-					// This is simple enough:  Move the card set to the previous
-					// card and update the label and database.  If we're now on
-					// the first card, disable the Previous button and make sure
-					// the Next button is always enabled.  Then rebuild the card
-					// itself so the correct passcodes are displayed.
-					cardSet.previousCard();
-			        btnNext.setEnabled(true);
-					if (cardSet.getLastCard() == Cardset.FIRST_CARD)
-						btnPrevious.setEnabled(false);
-					// Save the card set to the database:
-					DBHelper.saveCardset(cardSet);
-					rebuildCard();
-			        lblCardNumber.setText(getResources().getString(R.string.cardview_card_num_prompt).replace(getResources().getString(R.string.meta_replace_token), String.valueOf(cardSet.getLastCard())));
+					moveToPreviousCard();
 				}});
 	        
 	        // Set the Previous button listener:
 	        btnNext.setOnClickListener(new OnClickListener() {
 				public void onClick(View arg0) {
-					// This is simple enough:  Move the card set to the next
-					// card and update the label and database.  If we're now on
-					// the last card, disable the Next button and make sure
-					// the Previous button is always enabled.  Then rebuild the card
-					// itself so the correct passcodes are displayed.
-					cardSet.nextCard();
-					btnPrevious.setEnabled(true);
-					if (cardSet.getLastCard() == Cardset.FINAL_CARD)
-						btnNext.setEnabled(false);
-					// Save the card set to the database:
-					DBHelper.saveCardset(cardSet);
-					rebuildCard();
-			        lblCardNumber.setText(getResources().getString(R.string.cardview_card_num_prompt).replace(getResources().getString(R.string.meta_replace_token), String.valueOf(cardSet.getLastCard())));
+					moveToNextCard();
 				}});
 	
 	        // Define the OnCheckedChangeListener for the ToggleButtons.  All of the
@@ -806,7 +808,37 @@ public class CardViewActivity extends Activity {
         }
         
     }
-    
+
+	public void onGesturePerformed(GestureOverlayView arg0, Gesture gesture) {
+		// Asbestos underpants:
+		try {
+			// This is pretty much taken directly from the SDK Resources library
+			// article on gestures.  Get any predictions that we recognzie and
+			// see if they score high enough.  If they do, get the action name
+			// and perform the associated action.
+			ArrayList<Prediction> predictions = gestureLibrary.recognize(gesture);
+		    if (predictions.size() > 0 && predictions.get(0).score > 1.0) {
+		        String action = predictions.get(0).name;
+		        // Swiping left to right is essentially the same as sliding the
+		        // current card to the right and pulling the previous card in
+		        // in its place.  Thus, swiping right goes to the previous card. 
+		        if ("Swipe Right".equals(action)) {
+		        	moveToPreviousCard();
+		        // Swiping right to left is the opposite of the above; this looks
+		        // like we're pushing out the old card to get the next one.
+		        } else if ("Swipe Left".equals(action)) {
+		        	moveToNextCard();
+		        }
+		    }
+		// I'm not sure the above will ever really blow up, but just in case,
+		// catch any exceptions and dipslay an error.  This should actually be
+		// something in the string resource, but for now we'll just dump the
+		// exception text and make it prettier later.
+		} catch (Exception e) {
+			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+		}
+	}
+
     /**
      * Rebuild the current card.  This gets the card set and card number data from
      * the activity's Cardset instance and the state of the toggle buttons from the
@@ -823,4 +855,49 @@ public class CardViewActivity extends Activity {
     	// process.
   		showDialog(DIALOG_PROGRESS);
     }
+    
+    /**
+     * Move to the next card in the set.  Note that in the unlikely event we're
+     * already on the final card, nothing happens. 
+     */
+    private void moveToNextCard() {
+		// This is simple enough:  Move the card set to the next
+		// card and update the label and database.  If we're now on
+		// the last card, disable the Next button and make sure
+		// the Previous button is always enabled.  Then rebuild the card
+		// itself so the correct passcodes are displayed.
+    	if (cardSet.getLastCard() != Cardset.FINAL_CARD) {
+			cardSet.nextCard();
+			btnPrevious.setEnabled(true);
+			if (cardSet.getLastCard() == Cardset.FINAL_CARD)
+				btnNext.setEnabled(false);
+			// Save the card set to the database:
+			DBHelper.saveCardset(cardSet);
+			rebuildCard();
+	        lblCardNumber.setText(getResources().getString(R.string.cardview_card_num_prompt).replace(getResources().getString(R.string.meta_replace_token), String.valueOf(cardSet.getLastCard())));
+    	}
+    }
+    
+    /**
+     * Move to the previous card in the set.  Note that if we're already on the
+     * first card, nothing happens. 
+     */
+    private void moveToPreviousCard() {
+		// This is simple enough:  Move the card set to the previous
+		// card and update the label and database.  If we're now on
+		// the first card, disable the Previous button and make sure
+		// the Next button is always enabled.  Then rebuild the card
+		// itself so the correct passcodes are displayed.
+    	if (cardSet.getLastCard() != Cardset.FIRST_CARD) {
+			cardSet.previousCard();
+	        btnNext.setEnabled(true);
+			if (cardSet.getLastCard() == Cardset.FIRST_CARD)
+				btnPrevious.setEnabled(false);
+			// Save the card set to the database:
+			DBHelper.saveCardset(cardSet);
+			rebuildCard();
+	        lblCardNumber.setText(getResources().getString(R.string.cardview_card_num_prompt).replace(getResources().getString(R.string.meta_replace_token), String.valueOf(cardSet.getLastCard())));
+    	}
+    }
+
 }
