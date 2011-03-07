@@ -32,6 +32,16 @@
         	android:alwaysRetainTaskState="false"
         	android:excludeFromRecents="true" 
         	android:allowTaskReparenting="false"></activity>
+        <activity android:name=".CardsetDetailsActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false"></activity>
         <activity android:name=".NewCardActivity"
         	android:label="@string/app_name"
         	android:clearTaskOnLaunch="true"

@@ -240,6 +240,11 @@ public class CardDBAdapter {
     	return deleteCardset(cardset.getCardsetId());
     }
     
+    /**
+     * Delete all card set data from the database, effectively returning it to
+     * the original installation state
+     * @return True on success, false on failure
+     */
     public boolean deleteAllCardsets() {
         mDb.execSQL("DROP INDEX IF EXISTS strikeindxmain;");
         mDb.execSQL("DROP INDEX IF EXISTS strikeindxcardset;");
@@ -319,7 +324,7 @@ public class CardDBAdapter {
     	// to see if there's data to delete first.  If not, go ahead and return
     	// true; otherwise, attempt the delete and return that result.
     	Cursor c = mDb.rawQuery("select * from " + DATABASE_TABLE_STRIKEOUTS +
-    			" where " + KEY_CARDSETID + " = " + cardsetId + ";", null);
+    			" where cardset_id = " + cardsetId + ";", null);
     	if (c != null) {
     		if (c.getCount() > 0) {
     			c.close();
@@ -424,6 +429,35 @@ public class CardDBAdapter {
     	} catch (Exception e) {
     		return null;
     	}
+    }
+    
+    /**
+     * Get the total number of strike-outs or toggles for the given card set
+     * @param cardsetId The internal database ID number for the card set
+     * @return The count of all toggles, or -1 on failure
+     */
+    public int getTotalToggleCount(long cardsetId) {
+    	try {
+    		int count = -1;
+    		Cursor c = mDb.rawQuery("select count(*) as count from " +
+    				DATABASE_TABLE_STRIKEOUTS + " where cardset_id = " +
+    				cardsetId + ";", null);
+    		if (c != null && c.getCount() == 1) {
+    			c.moveToFirst();
+    			count = c.getInt(c.getColumnIndex("count"));
+    		}
+    		if (c != null) c.close();
+    		return count;
+    	} catch (Exception e) { return -1; }
+    }
+    
+    /**
+     * Get the total number of strike-outs or toggles for the given card set
+     * @param cardSet A Cardset object
+     * @return The count of all toggles, or -1 on failure
+     */
+    public int getTotalToggleCount(Cardset cardSet) {
+    	return getTotalToggleCount(cardSet.getCardsetId());
     }
     
     /**

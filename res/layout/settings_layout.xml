@@ -20,7 +20,8 @@
 			<CheckBox android:id="@+id/settings_copy_passcodes_chk"
 				android:text="@string/settings_copy_passcodes_chk"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"></CheckBox>
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"></CheckBox>
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>
