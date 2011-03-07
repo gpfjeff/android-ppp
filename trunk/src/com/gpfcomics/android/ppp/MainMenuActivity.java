@@ -65,14 +65,17 @@ import android.widget.Toast;
  */
 public class MainMenuActivity extends ListActivity {
 
+	/** This constant identifies the Details context menu */
+	private static final int MENU_DETAILS = Menu.FIRST;
+
 	/** This constant identifies the Rename context menu */
-	private static final int MENU_RENAME = Menu.FIRST;
+	private static final int MENU_RENAME = Menu.FIRST + 1;
 
 	/** This constant identifies the Clear All Strikes context menu */
-	private static final int MENU_CLEAR_STRIKES = Menu.FIRST + 1;
+	private static final int MENU_CLEAR_STRIKES = Menu.FIRST + 2;
 	
 	/** This constant identifies the Delete context menu */
-	private static final int MENU_DELETE = Menu.FIRST + 2;
+	private static final int MENU_DELETE = Menu.FIRST + 3;
 
 	/** This constant identifies the New option menu */
 	private static final int OPTMENU_NEW = Menu.FIRST + 100;
@@ -388,9 +391,10 @@ public class MainMenuActivity extends ListActivity {
 		// rename it (we won't allow the user to change any other parameters
 		// for now), clear all of its strike-out data, or delete it.
 		menu.setHeaderTitle(R.string.menu_cardset_options_title);
-        menu.add(0, MENU_RENAME, 0, R.string.menu_cardset_options_rename);
-        menu.add(0, MENU_CLEAR_STRIKES, 1, R.string.menu_cardset_options_clear_strikes);
-        menu.add(0, MENU_DELETE, 2, R.string.menu_cardset_options_delete);
+        menu.add(0, MENU_DETAILS, 0, R.string.menu_cardset_options_details);
+        menu.add(0, MENU_RENAME, 1, R.string.menu_cardset_options_rename);
+        menu.add(0, MENU_CLEAR_STRIKES, 2, R.string.menu_cardset_options_clear_strikes);
+        menu.add(0, MENU_DELETE, 3, R.string.menu_cardset_options_delete);
     }
     
     @Override
@@ -411,6 +415,12 @@ public class MainMenuActivity extends ListActivity {
 		// we'll launch a dialog box to confirm the action or get additional
 		// information.
     	switch(item.getItemId()) {
+			// Show detailed information about the selected card set:
+	    	case MENU_DETAILS:
+	        	Intent i = new Intent(this, CardsetDetailsActivity.class);
+	        	i.putExtra(CardDBAdapter.KEY_CARDSETID, selectedCardsetID);
+	        	startActivity(i);
+	    		return true;
     		// Rename the card set:
 	    	case MENU_RENAME:
 	    		showDialog(DIALOG_RENAME);

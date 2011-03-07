@@ -5,7 +5,10 @@
  * PROJECT:       Perfect Paper Passwords for Android
  * ANDROID V.:	  1.1
  * 
- * [Description]
+ * This Card View Activity does the actual work of displaying a Perfect Paper Passwords
+ * card.  Given a Cardset definition, it displays the "last" or "current" card for
+ * that card set, as well as providing an interface for moving from card to card and
+ * "striking out" used passcodes.
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
@@ -88,14 +91,17 @@ public class CardViewActivity extends Activity implements
 	/** A constant identifying the Go To option menu item */
 	private static final int OPTMENU_GOTO = 54320;
 	
+	/** A constant identifying the View Details option menu item */
+	private static final int OPTMENU_DETAILS = 54321;
+	
 	/** A constant identifying the Clear Toggles option menu item */
-	private static final int OPTMENU_CLEAR_TOGGLES = 54321;
+	private static final int OPTMENU_CLEAR_TOGGLES = 54322;
 	
 	/** A constant identifying the Settings option menu item */
-	private static final int OPTMENU_SETTINGS = 54322;
+	private static final int OPTMENU_SETTINGS = 54323;
 	
 	/** A constant identifying the Help option menu item */
-	private static final int OPTMENU_HELP = 54323;
+	private static final int OPTMENU_HELP = 54324;
 	
 	/** A convenience constant pointing to the "on" or "struck through" Drawable
 	 *  resource for our card's ToggleButtons. */
@@ -109,8 +115,8 @@ public class CardViewActivity extends Activity implements
 	 *  headings.  These may get moved to the res/values/strings.xml resource
 	 *  eventually. */
 	private static final String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H",
-		"I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X",
-		"Y", "Z"};
+		"I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" /*, "U", "V", "W",
+		"X", "Y", "Z"*/};
 	
 	/** A "seed" value which will be applied to the internal IDs of the card's
 	 *  ToggleButtons.  This will help us identify which button was pressed.  All
@@ -167,17 +173,17 @@ public class CardViewActivity extends Activity implements
 	 *  a variable so we only have to compute the value once. */
 	private int totalPasscodes = 0;
 	
-	/** This two-dimensional Boolean array temporarily stores the toggled or "strike
-	 *  through" state of the card's various ToggleButtons.  The first dimension is
-	 *  for rows and the second for columns.  If a passcode has been "struck", the
-	 *  value for its position will be true; otherwise it will be false.  Note that
-	 *  array indices are zero-based while the row/column numbers are one-based. */
+	/** This two-dimensional Boolean array stores the toggled or "strike through"
+	 *  state of the card's various ToggleButtons.  The first dimension is for rows
+	 *  and the second for columns.  If a passcode has been "struck", the value for
+	 *  its position will be true; otherwise it will be false.  Note that array
+	 *  indices are zero-based while the row/column numbers are one-based. */
 	private boolean[][] toggles = null;
 	
-	/** This two-dimensional String array temporarily stores the generated passcode
-	 *  values for the card's various ToggleButtons.  The first dimension is
-	 *  for rows and the second for columns.  Note that array indices are zero-based
-	 *  while the row/column numbers are one-based. */
+	/** This two-dimensional String array stores the generated passcode values for the
+	 *  card's various ToggleButtons.  The first dimension is for rows and the second
+	 *  for columns.  Note that array indices are zero-based while the row/column
+	 *  numbers are one-based. */
 	private String[][] passcodes = null;
 
 	/** Called when the activity is first created. */
@@ -191,25 +197,51 @@ public class CardViewActivity extends Activity implements
         DBHelper = theApp.getDBHelper();
         // Asbestos underpants:
         try {
-	        // Get card set ID from the caller, then load the card set parameters
-        	// from the database:
-	        Bundle extras = getIntent().getExtras();
-	        if (extras != null) {
-	        	long cardsetId = extras.getLong(CardDBAdapter.KEY_CARDSETID);
-	        	cardSet = DBHelper.getCardset(cardsetId);
-	        	if (cardSet == null) {
-	        		Toast.makeText(this, R.string.error_cardset_not_found,
-	        				Toast.LENGTH_LONG).show();
-	        		this.setResult(MainMenuActivity.RESPONSE_ERROR);
-	        		finish();
-	        	}
-	        } else {
-        		Toast.makeText(this, R.string.error_cardset_not_found,
-        				Toast.LENGTH_LONG).show();
-        		this.setResult(MainMenuActivity.RESPONSE_ERROR);
-        		finish();
-	        }
-	        
+        	// I ran into a problem during development where configuration changes
+        	// (such as rotating the device) would cause the progress dialog to pop
+        	// up and appear to hang.  This is due in part to the fact that Android
+        	// destroys activities and recreates them when a configuration change
+        	// occurs.  This forced a complete rebuild of the page, including
+        	// regenerating all the passcodes, but the progress dialog didn't want
+        	// to play nice.  To get around this, when a configuration change occurs,
+        	// we store the existing state of the activity in a persistent object and
+        	// attempt to restore it in the recreated activity.
+        	//
+        	// So, the first step we need to do is see if such an object exists.  If
+        	// it does, we'll shortcut the process and use the existing data, rather
+        	// than regenerate it.  So look for this state object and see if it exists.
+        	final CardViewState state =
+        		(CardViewState)getLastNonConfigurationInstance();
+        	// If the object is null, we're coming into the activity for the first
+        	// time.  Get card set ID from the caller, then load the card set
+        	// parameters from the database:
+        	if (state == null) {
+    	        Bundle extras = getIntent().getExtras();
+    	        if (extras != null) {
+    	        	long cardsetId = extras.getLong(CardDBAdapter.KEY_CARDSETID);
+    	        	cardSet = DBHelper.getCardset(cardsetId);
+    	        	// If we couldn't find the card set, complain and exit:
+    	        	if (cardSet == null) {
+    	        		Toast.makeText(this, R.string.error_cardset_not_found,
+    	        				Toast.LENGTH_LONG).show();
+    	        		this.setResult(MainMenuActivity.RESPONSE_ERROR);
+    	        		finish();
+    	        	}
+    	        // If the bundle was empty, complain and exit:
+    	        } else {
+            		Toast.makeText(this, R.string.error_cardset_not_found,
+            				Toast.LENGTH_LONG).show();
+            		this.setResult(MainMenuActivity.RESPONSE_ERROR);
+            		finish();
+    	        }
+    	    // If the persistent object did exist, we've been destroyed and recreated.
+    	    // Get that previous state and restore the old values:
+        	} else {
+        		cardSet = state.getCardset();
+        		passcodes = state.getPasscodes();
+        		toggles = state.getToggles();
+        	}
+        	
 	        // Go ahead and compute the total number of passcodes on the card.  This
 	        // is the product of rows and columns.
 	        totalPasscodes = cardSet.getNumberOfColumns() *
@@ -338,7 +370,7 @@ public class CardViewActivity extends Activity implements
 							clippy.setText(tb.getTextOn());
 							Toast.makeText(v.getContext(), 
 									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token), letters[col - 1] + row),
-									Toast.LENGTH_LONG).show();
+									Toast.LENGTH_SHORT).show();
 						}
 					// Hopefully we won't need this, but we definitely need to catch
 					// potential bugs:
@@ -353,8 +385,8 @@ public class CardViewActivity extends Activity implements
 	    	// Get the table layout where we'll build our card:
 	        TableLayout tl = (TableLayout)findViewById(R.id.cardtable);
 	        // We need some sort of placeholder to put as the toggle button on/off
-	        // text.  We'll use a StringBuilder to make a string the same length
-	        // as the passcodes.
+	        // text if this is our first time through.  We'll use a StringBuilder to
+	        // make a string the same length as the passcodes.
 	        StringBuilder sb = new StringBuilder(cardSet.getPasscodeLength());
 	        for (int i = 0; i < cardSet.getPasscodeLength(); i++)
 	        	sb.append("x");
@@ -417,11 +449,20 @@ public class CardViewActivity extends Activity implements
 	            			// we'll be resetting these values later in rebuildCard(),
 	            			// this isn't a major issue.  For now, set the text to
 	            			// some place holder.
-	            			tb.setTextOn(dummy);
-	            			tb.setTextOff(dummy);
+	            			if (passcodes == null) {
+		            			tb.setTextOn(dummy);
+		            			tb.setTextOff(dummy);
+		            		// However, if we've already done this and we're restoring
+		            		// a previous state, we've already got the passocde from
+		            		// before.  Go ahead and populate it; it seems to work in
+		            		// this case.
+	            			} else {
+		            			tb.setTextOn(passcodes[row - 1][col - 1]);
+		            			tb.setTextOff(passcodes[row - 1][col - 1]);
+	            			}
+	            			// Set our gravity, padding, and typeface:
 	            			tb.setGravity(Gravity.CENTER);
 	                		tb.setPadding(2, 2, 2, 2);
-	                		// I don't think the typeface is working either:
 	            			tb.setTypeface(Typeface.MONOSPACE);
 	            			// I'm not sure why, but setting the layout parameters
 	            			// doesn't work here.  If they're set, nothing gets
@@ -437,8 +478,17 @@ public class CardViewActivity extends Activity implements
 	            			// the button is checked or not will be the background.
 	            			tb.setTextColor(ColorStateList.valueOf(getResources().getColor(android.R.color.secondary_text_dark)));
 	            			// By default, "clear" the "strike through":
-	            			tb.setChecked(false);
-	            			tb.setBackgroundResource(toggleBgOff);
+	            			if (toggles == null) {
+	            				tb.setChecked(false);
+		            			tb.setBackgroundResource(toggleBgOff);
+		            		// Unless we've already done this before and we know what
+		            		// state we had before:
+	            			} else {
+	            				tb.setChecked(toggles[row - 1][col - 1]);
+	            				if (toggles[row - 1][col - 1])
+	            					tb.setBackgroundResource(toggleBgOn);
+	            				else tb.setBackgroundResource(toggleBgOff);
+	            			}
 	            			// Set our listeners to implement our toggle behavior:
 	            			tb.setOnClickListener(onClickListener);
 	            			tb.setOnCheckedChangeListener(onCheckedChangeListener);
@@ -452,11 +502,13 @@ public class CardViewActivity extends Activity implements
 	                    LayoutParams.FILL_PARENT,
 	                    LayoutParams.WRAP_CONTENT));
 	        }
-	        // Finally, get the PPP engine to rebuild the actual passcode values
-	        // and set the ToggleButton states from the database.  This gets done
-	        // a lot, so we'll put that in its own method.  This has the added benefit
-	        // of getting around the weird state text anomaly mentioned above.
-	        rebuildCard();
+	        // Finally, if this is our first time through for this card, get the PPP
+	        // engine to rebuild the actual passcode values and set the ToggleButton
+	        // states from the database.  This gets done a lot, so we'll put that in
+	        // its own method.  This has the added benefit of getting around the weird
+	        // state text anomaly mentioned above.  Of course, if we've already built
+	        // the card before and we're restoring our state, this step is unnecessary.
+	        if (passcodes == null) rebuildCard();
 
 	    // This should be prettier, but catch any errors and redisplay them to the
 	    // user.  This needs to be cleaned up and the text internationalized before
@@ -483,7 +535,6 @@ public class CardViewActivity extends Activity implements
 	    		progressDialog.setOwnerActivity(this);
 	    		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	    		progressDialog.setMax(totalPasscodes);
-	            //progressDialog.setMessage(getResources().getString(R.string.sitelist_loading_message));
 	            progressDialog.setMessage(getResources().getString(R.string.dialog_generating_passwords));
 	            cardBuilderThread = new CardBuilderThread(handler);
 	            cardBuilderThread.start();
@@ -636,6 +687,9 @@ public class CardViewActivity extends Activity implements
     	// Add the "Go To" menu item:
     	menu.add(0, OPTMENU_GOTO, Menu.NONE,
     		R.string.optmenu_goto).setIcon(android.R.drawable.ic_menu_directions);
+    	// Add the "View Details" menu item:
+    	menu.add(0, OPTMENU_DETAILS, Menu.NONE,
+    		R.string.optmenu_details).setIcon(android.R.drawable.ic_menu_view);
     	// Add the "Clear Toggles" menu item:
     	menu.add(0, OPTMENU_CLEAR_TOGGLES, Menu.NONE,
     		R.string.optmenu_clear_strikes).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
@@ -659,6 +713,12 @@ public class CardViewActivity extends Activity implements
 	    	case OPTMENU_GOTO:
 	    		showDialog(DIALOG_GOTO);
 	    		return true;
+	    	// Launch the card set details activity:
+	    	case OPTMENU_DETAILS:
+	    		Intent i1 = new Intent(this, CardsetDetailsActivity.class);
+	    		i1.putExtra(CardDBAdapter.KEY_CARDSETID, cardSet.getCardsetId());
+		    	startActivity(i1);
+	    		return true;
 	    	// Like the above, Clear Toggles launches the dialog to prompt the user
 	    	// further:
 	    	case OPTMENU_CLEAR_TOGGLES:
@@ -666,15 +726,15 @@ public class CardViewActivity extends Activity implements
 	    		return true;
 	    	// Launch the settings activity:
 	    	case OPTMENU_SETTINGS:
-	    		Intent i = new Intent(this, SettingsActivity.class);
-		    	startActivity(i);
+	    		Intent i2 = new Intent(this, SettingsActivity.class);
+		    	startActivity(i2);
 	    		return true;
 	    	// If the Help item is selected, open up the help page for this
 	    	// Activity:
 	    	case OPTMENU_HELP:
-	        	//Intent i2 = new Intent(this, HelpActivity.class);
-	        	//i2.putExtra("helptext", R.string.help_text_importexport);
-	        	//startActivity(i2);
+	        	//Intent i3 = new Intent(this, HelpActivity.class);
+	        	//i3.putExtra("helptext", R.string.help_text_importexport);
+	        	//startActivity(i3);
 	    		Toast.makeText(this, R.string.error_not_implemented,
 	    				Toast.LENGTH_LONG).show();
 	    		return true;
@@ -722,10 +782,10 @@ public class CardViewActivity extends Activity implements
 	    		    			else tb.setChecked(false);
 	    					}
 	    				}
-	    				// Now that they're no longer needed, clear the toggle and
-	    				// passcode arrays to free up memory:
-	    				toggles = null;
-	    				passcodes = null;
+	    				// Originally, I cleared the passcode and toggle arrays here to
+	    				// free up memory.  Rather than do that now, we hold on to them
+	    				// so we can restore the state of the view if there's a
+	    				// configuration change.
 	    			}
 	    			// Now remove the progress dialog:
 	    			removeDialog(DIALOG_PROGRESS);
@@ -837,6 +897,11 @@ public class CardViewActivity extends Activity implements
 		} catch (Exception e) {
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	public Object onRetainNonConfigurationInstance() {
+		final CardViewState state = new CardViewState(cardSet, toggles, passcodes);
+		return state;
 	}
 
     /**
