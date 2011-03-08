@@ -3,9 +3,17 @@
       package="com.gpfcomics.android.ppp"
       android:versionCode="1"
       android:versionName="1.0 ALPHA">
-    <uses-sdk android:minSdkVersion="2" />
+    <uses-sdk android:minSdkVersion="2" android:targetSdkVersion="4"/>
+	<supports-screens
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:smallScreens="true"
+		android:anyDensity="true"
+		android:resizeable="true"/>
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="PPPApplication">
+    <application android:icon="@drawable/icon"
+    	android:label="@string/app_name"
+    	android:name="PPPApplication">
         <activity android:name=".PasswordPromptActivity"
             android:label="@string/app_name"
         	android:stateNotNeeded="true"

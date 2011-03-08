@@ -74,6 +74,7 @@
     <string name="optmenu_details">View Details</string>
     <string name="optmenu_goto">Go To</string>
     <string name="optmenu_help">Help</string>
+    <string name="optmenu_license">View Full License</string>
     <string name="optmenu_new">New</string>
     <string name="optmenu_settings">Settings</string>
     <string name="optmenu_view">View Last Card</string>

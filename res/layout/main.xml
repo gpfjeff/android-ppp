@@ -18,7 +18,9 @@
             		android:textSize="24sp"
             		android:textStyle="bold"></TextView>
             	<Button android:id="@+id/cardset_list_add_btn"
-            		android:text="@string/cardset_list_new_btn"
+            		android:text="  +  "
+            		android:textStyle="bold"
+            		android:textSize="28sp"
             		android:layout_width="wrap_content"
             		android:layout_height="wrap_content"></Button>
         </TableRow>
