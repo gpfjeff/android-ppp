@@ -179,10 +179,13 @@ public class PPPengine {
 		return in;
     }
 
-	/**
+/* JTD 3/8/2011: Commenting out this method just to get Eclipse to stop complaining.
+ * This method is never used anywhere, so it produces a warning in Eclipse.
+
+    / **
 	* Increment byte
 	* @param b byte
-	*/
+	* /
 	private void increment( byte [] b ) {
 		for ( int i = 0; i < b.length - 1; ++i ) {
 	    	int t = b[i] & 0xFF;
@@ -193,7 +196,7 @@ public class PPPengine {
 				break;
 	    	}
 		}
-	}
+	}*/
 
 	/**
 	 * Byte divider

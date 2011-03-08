@@ -25,7 +25,11 @@
 package com.gpfcomics.android.ppp;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 /**
@@ -35,6 +39,13 @@ import android.widget.TextView;
  * @since 1.0
  */
 public class AboutActivity extends Activity {
+	
+	/** This constant identifies the View Full License option menu */
+	private static final int OPTMENU_LICENSE = Menu.FIRST;
+	
+	/** The URL to the GNU GPLv3 */
+	private static final String GPL3_URL =
+		"http://www.gnu.org/licenses/gpl-3.0-standalone.html";
 	
 	/** The TextView that contains the version number string */
 	private TextView lblVersion = null;
@@ -58,5 +69,26 @@ public class AboutActivity extends Activity {
         	lblVersion.setText("");
         }
     }
+    
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the option menu:
+    	menu.add(0, OPTMENU_LICENSE, Menu.NONE,
+        		R.string.optmenu_license).setIcon(android.R.drawable.ic_menu_info_details);
+    	return true;
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+    		// If the user picks the View Full License menu item, launch the
+    		// browser (or whatever the user's preference is for browser) and
+    		// go to the GPL website:
+	    	case OPTMENU_LICENSE:
+				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(GPL3_URL));
+		    	startActivity(i);
+	    		return true;
+    	}
+    	return false;
+    }
+
 
 }
