@@ -39,7 +39,7 @@ import android.util.Log;
  * @version 1.0
  * @since 1.0
  */
-public class CardDBAdapter {
+class CardDBAdapter {
 
 	/** I *think* this is used for the SQLiteOpenHelper.onUpgrade() log and
      *  nowhere else.  That said, I'm not sure what other purpose this
@@ -59,8 +59,8 @@ public class CardDBAdapter {
     /** The version of this database. */
     private static final int DATABASE_VERSION = 1;
     
-    public static final String KEY_CARDSETID = "_id";
-    public static final String KEY_NAME = "name";
+    static final String KEY_CARDSETID = "_id";
+    static final String KEY_NAME = "name";
 
     /** The SQL statement to create the card sets database table */
     private static final String DATABASE_CREATE_CARDSETS_SQL =
@@ -101,7 +101,7 @@ public class CardDBAdapter {
 
 
     /** Our calling Context. */
-    private final Context mCtx;
+    private final PPPApplication theApp;
 
     /**
      * This helper wraps a little bit of extra functionality around the
@@ -118,7 +118,7 @@ public class CardDBAdapter {
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
+		public void onCreate(SQLiteDatabase db) {
         	// While sqlite lets us have multiple tables per database, Android's
         	// SQLiteDatabase class doesn't like multiple SQL statements in the
         	// same execSQL() command.  Thus, we need to break out each statement
@@ -155,13 +155,13 @@ public class CardDBAdapter {
      * Constructor - takes the context to allow the database to be
      * opened/created
      * 
-     * @param ctx the Context within which to work
+     * @param theApp The owning PPPApplication
      */
-    public CardDBAdapter(Context ctx) {
-        this.mCtx = ctx;
+    CardDBAdapter(PPPApplication theApp) {
+        this.theApp = theApp;
     }
     
-    /* ##### Public Methods ##### */
+    /* ##### Protected Methods ##### */
     
     /**
      * Open the PPP database. If it cannot be opened, try to create a new
@@ -171,8 +171,8 @@ public class CardDBAdapter {
      *         initialization call)
      * @throws SQLException if the database could be neither opened or created
      */
-    public CardDBAdapter open() throws SQLException {
-        mDbHelper = new DatabaseHelper(mCtx);
+    CardDBAdapter open() throws SQLException {
+        mDbHelper = new DatabaseHelper(theApp);
         mDb = mDbHelper.getWritableDatabase();
         return this;
     }
@@ -180,7 +180,7 @@ public class CardDBAdapter {
     /**
      * Close the PPP database.
      */
-    public void close() {
+    void close() {
         mDbHelper.close();
     }
     
@@ -193,7 +193,7 @@ public class CardDBAdapter {
      * should be the same value as the original ID if the card set already existed,
      * or the new ID if the card is new.  If the save fails, this returns Cardset.NOID.
      */
-    public long saveCardset(Cardset cardset) {
+    long saveCardset(Cardset cardset) {
     	// Check to see if the card set already has an ID assigned:
     	if (cardset.getCardsetId() != Cardset.NOID) {
     		// If so, make sure it actually exists in the database:
@@ -218,7 +218,7 @@ public class CardDBAdapter {
      * @param cardsetId The internal database ID of the card set to delete
      * @return True on success, false on failure.
      */
-    public boolean deleteCardset(long cardsetId) {
+    boolean deleteCardset(long cardsetId) {
     	// Try to delete the toggle data first:
     	if (clearAllTogglesForCardset(cardsetId))
     		// If that succeeded, delete the actual card set parameters:
@@ -235,7 +235,7 @@ public class CardDBAdapter {
      * database
      * @return True on success, false on failure.
      */
-    public boolean deleteCardset(Cardset cardset) {
+    boolean deleteCardset(Cardset cardset) {
     	// No sense reinventing the wheel:
     	return deleteCardset(cardset.getCardsetId());
     }
@@ -245,7 +245,7 @@ public class CardDBAdapter {
      * the original installation state
      * @return True on success, false on failure
      */
-    public boolean deleteAllCardsets() {
+    boolean deleteAllCardsets() {
         mDb.execSQL("DROP INDEX IF EXISTS strikeindxmain;");
         mDb.execSQL("DROP INDEX IF EXISTS strikeindxcardset;");
         mDb.execSQL("DROP INDEX IF EXISTS strikeindxcardsetcard;");
@@ -264,7 +264,7 @@ public class CardDBAdapter {
      * @param cardsetId The internal database ID of the card set to retrieve
      * @return A Cardset object containing the card set's parameters
      */
-    public Cardset getCardset(long cardsetId) {
+    Cardset getCardset(long cardsetId) {
     	// Asbestos underpants:
     	try {
     		// Query the DB to see if we can get the card set:
@@ -274,6 +274,13 @@ public class CardDBAdapter {
     		// populate it:
     		if (c != null) {
     			c.moveToFirst();
+    			// Note that if the user has set a password, the sequence key
+    			// should be encrypted.  Decrypt the sequence key before
+    			// creating the Cardset object:
+    			String seqKey = c.getString(c.getColumnIndex("sequence_key"));
+    			if (theApp.promptForPassword())
+    				seqKey = theApp.decryptSequenceKey(seqKey);
+    			// Now create the object:
     			Cardset cs = new Cardset(
     					c.getLong(c.getColumnIndex(KEY_CARDSETID)),
     					c.getString(c.getColumnIndex(KEY_NAME)),
@@ -281,7 +288,7 @@ public class CardDBAdapter {
     					c.getInt(c.getColumnIndex("rows")), 
     					c.getInt(c.getColumnIndex("passcode_length")),
     					c.getString(c.getColumnIndex("alphabet")),
-    					c.getString(c.getColumnIndex("sequence_key")),
+    					seqKey,
     					c.getInt(c.getColumnIndex("last_card")));
     			c.close();
     			return cs;
@@ -299,7 +306,7 @@ public class CardDBAdapter {
      * @param newName The new display name
      * @return True on success, false on failure
      */
-    public boolean renameCardset(long cardsetId, String newName) {
+    boolean renameCardset(long cardsetId, String newName) {
     	try {
     		ContentValues values = new ContentValues();
     		values.put(KEY_NAME, newName);
@@ -315,7 +322,7 @@ public class CardDBAdapter {
      * @param cardsetId The internal database ID for the specified card set
      * @return True on success, false on failure
      */
-    public boolean clearAllTogglesForCardset(long cardsetId) {
+    boolean clearAllTogglesForCardset(long cardsetId) {
     	// Originally, I just blindly attempted a delete here and returned the
     	// boolean result.  Unfortunately, if we call this in a situation where
     	// there are no toggles, that returns false.  Unfortunately, I planned
@@ -343,7 +350,7 @@ public class CardDBAdapter {
      * the database
      * @return True on success, false on failure
      */
-    public boolean clearAllTogglesForCardset(Cardset cardset) {
+    boolean clearAllTogglesForCardset(Cardset cardset) {
     	return clearAllTogglesForCardset(cardset.getCardsetId());
     }
     
@@ -354,7 +361,7 @@ public class CardDBAdapter {
      * @param card The card number
      * @return True on success, false on failure
      */
-    public boolean clearTogglesForCard(long cardsetId, int card) {
+    boolean clearTogglesForCard(long cardsetId, int card) {
     	return mDb.delete(DATABASE_TABLE_STRIKEOUTS,
     			"cardset_id = " + cardsetId + " and card = " + card, null) > 0; 
     }
@@ -365,7 +372,7 @@ public class CardDBAdapter {
      * @param cardset A Cardset object
      * @return True on success, false on failure
      */
-    public boolean clearTogglesForLastCard(Cardset cardset) {
+    boolean clearTogglesForLastCard(Cardset cardset) {
     	return clearTogglesForCard(cardset.getCardsetId(), cardset.getLastCard());
     }
     
@@ -383,7 +390,7 @@ public class CardDBAdapter {
      * so you may need to adjust indexes to get the right value.  Also note that if
      * an error occurs, a null value may be returned.
      */
-    public boolean[][] getTogglesForLastCard(Cardset cardSet) {
+    boolean[][] getTogglesForLastCard(Cardset cardSet) {
     	// Asbestos underpants:
     	try {
     		// Start by declaring our array of boolean values, then initializing them
@@ -436,7 +443,7 @@ public class CardDBAdapter {
      * @param cardsetId The internal database ID number for the card set
      * @return The count of all toggles, or -1 on failure
      */
-    public int getTotalToggleCount(long cardsetId) {
+    int getTotalToggleCount(long cardsetId) {
     	try {
     		int count = -1;
     		Cursor c = mDb.rawQuery("select count(*) as count from " +
@@ -456,7 +463,7 @@ public class CardDBAdapter {
      * @param cardSet A Cardset object
      * @return The count of all toggles, or -1 on failure
      */
-    public int getTotalToggleCount(Cardset cardSet) {
+    int getTotalToggleCount(Cardset cardSet) {
     	return getTotalToggleCount(cardSet.getCardsetId());
     }
     
@@ -468,7 +475,7 @@ public class CardDBAdapter {
      * @param row The row of the toggled passcode
      * @return True on success, false on failure
      */
-    public boolean tooglePasscode(long cardsetId, int card, int column, int row) {
+    boolean tooglePasscode(long cardsetId, int card, int column, int row) {
     	try {
     		// First we have to see if the specified combination of card set, card,
     		// column, and row exists.  If it does, we'll need to delete it; if it
@@ -504,7 +511,7 @@ public class CardDBAdapter {
      * @return A Cursor containing the name and card set ID of all card sets currently
      * stored in the database.  This may return null if no card sets were found.
      */
-    public Cursor getCardsetListMenuItems() {
+    Cursor getCardsetListMenuItems() {
     	try {
     		Cursor c = mDb.rawQuery("select " + KEY_NAME + ", " + KEY_CARDSETID +
     				" from " + DATABASE_TABLE_CARDSETS + " order by " + KEY_NAME +
@@ -516,6 +523,87 @@ public class CardDBAdapter {
     	}
     }
     
+    /**
+     * Assuming that the user has just set a new application password, encrypt all
+     * sequence keys in the database using a key derived from this password.  This
+     * must be called *AFTER* the password has been set within the application, as
+     * setting the password creates the encryption cipher.
+     * @return True on success, false on failure
+     */
+    boolean encryptAllSequenceKeys() {
+    	// Make sure the password has already been set within the application.
+    	// This ensures that the encryption cipher should be ready and waiting
+    	// for us.
+    	if (theApp.promptForPassword()) {
+    		// Query the card set table and get the row ID and sequence key for each
+    		// card set:
+			Cursor c = mDb.rawQuery("select " + KEY_CARDSETID + ", sequence_key from " +
+					DATABASE_TABLE_CARDSETS + " order by " + KEY_CARDSETID + " asc;",
+					null);
+			// If there's any data to work with:
+			if (c != null && c.getCount() > 0) {
+				c.moveToFirst();
+				// Loop through each one:
+    			while (!c.isAfterLast()) {
+    				// Get the ID and sequence key:
+    				long id = c.getInt(c.getColumnIndex(KEY_CARDSETID));
+    				String seqKey = c.getString(c.getColumnIndex("sequence_key"));
+    				// Encrypt the sequence key:
+    				seqKey = theApp.encryptSequenceKey(seqKey);
+    				// Create a new update query to overwrite the unencrypted
+    				// sequence key with the encrypted one:
+    	    		ContentValues values = new ContentValues();
+    	    		values.put("sequence_key", seqKey);
+    	    		mDb.update(DATABASE_TABLE_CARDSETS, values,
+    	    				KEY_CARDSETID + "=" + id, null);
+    				c.moveToNext();
+    			}
+			}
+			if (c != null) c.close();
+	    	return true;
+    	} else return false;
+    }
+    
+    /**
+     * Assuming that the user is about to clear the application password, decrypt
+     * all sequence keys in the database.  This should be called *BEFORE* the
+     * password is actually cleared as we'll need the password and related ciphers
+     * to release the data.
+     * @return True on success, false on failure
+     */
+    boolean decryptAllSequenceKeys() {
+    	// Make sure the password is still set.  We can't decrypt the database
+    	// if we don't have the password anymore!
+    	if (theApp.promptForPassword()) {
+    		// Query the card set table and get the row ID and sequence key for each
+    		// card set:
+			Cursor c = mDb.rawQuery("select " + KEY_CARDSETID + ", sequence_key from " +
+					DATABASE_TABLE_CARDSETS + " order by " + KEY_CARDSETID + " asc;",
+					null);
+			// If there's any data to work with:
+			if (c != null && c.getCount() > 0) {
+				c.moveToFirst();
+				// Loop through each one:
+    			while (!c.isAfterLast()) {
+    				// Get the ID and sequence key:
+    				long id = c.getInt(c.getColumnIndex(KEY_CARDSETID));
+    				String seqKey = c.getString(c.getColumnIndex("sequence_key"));
+    				// Decrypt the sequence key:
+    				seqKey = theApp.decryptSequenceKey(seqKey);
+    				// Create a new update query to overwrite the encrypted
+    				// sequence key with the decrypted one:
+    	    		ContentValues values = new ContentValues();
+    	    		values.put("sequence_key", seqKey);
+    	    		mDb.update(DATABASE_TABLE_CARDSETS, values,
+    	    				KEY_CARDSETID + "=" + id, null);
+    				c.moveToNext();
+    			}
+			}
+			if (c != null) c.close();
+	    	return true;
+    	} else return false;
+    }
+
     /* ##### Private Methods ##### */
     
     /**
@@ -528,9 +616,15 @@ public class CardDBAdapter {
     	// Simple enough: Try to add the card set to the database.  If it works,
     	// return the new ID; if it doesn't, return NOID:
     	try {
+    		// If a password is set, we need to encrypt the sequence key before
+    		// storing it in the database:
+    		String seqKey = cardset.getSequenceKey();
+    		if (theApp.promptForPassword())
+    			seqKey = theApp.encryptSequenceKey(seqKey);
+    		// Now store the car set parameters:
     		ContentValues initialValues = new ContentValues();
     		initialValues.put(KEY_NAME, cardset.getName());
-    		initialValues.put("sequence_key", cardset.getSequenceKey());
+    		initialValues.put("sequence_key", seqKey);
     		initialValues.put("alphabet", cardset.getAlphabet());
     		initialValues.put("columns", cardset.getNumberOfColumns());
     		initialValues.put("rows", cardset.getNumberOfRows());
@@ -549,9 +643,15 @@ public class CardDBAdapter {
      */
     private boolean updateCardset(Cardset cardset) {
     	try {
+    		// If a password is set, we need to encrypt the sequence key before
+    		// storing it in the database:
+    		String seqKey = cardset.getSequenceKey();
+    		if (theApp.promptForPassword())
+    			seqKey = theApp.encryptSequenceKey(seqKey);
+    		// Now store the car set parameters:
     		ContentValues values = new ContentValues();
     		values.put(KEY_NAME, cardset.getName());
-    		values.put("sequence_key", cardset.getSequenceKey());
+    		values.put("sequence_key", seqKey);
     		values.put("alphabet", cardset.getAlphabet());
     		values.put("columns", cardset.getNumberOfColumns());
     		values.put("rows", cardset.getNumberOfRows());
@@ -564,5 +664,4 @@ public class CardDBAdapter {
     	}
     }
     
-
 }
