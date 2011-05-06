@@ -199,6 +199,12 @@ public class SettingsActivity extends Activity {
 							// care of encrypting it and putting it in the preferences
 							// file for us.
 							if (theApp.setPassword(pwd)) {
+								// Encrypt all the sequence keys.  I'm betting this
+								// should really be put into a progress dialog, but
+								// for now we'll just call this here and see if it
+								// causes performance problems first.
+								theApp.getDBHelper().encryptAllSequenceKeys();
+								// Tell the user we were successful:
 								Toast.makeText(v.getContext(),
 										R.string.dialog_password_set_success,
 										Toast.LENGTH_LONG).show();
@@ -248,16 +254,24 @@ public class SettingsActivity extends Activity {
 						// one stored in the app.  Ask the app to validate it:
 						if (pwd != null && pwd.length() > 0 &&
 								theApp.isValidPassword(pwd)) {
-							// If the password looks valid, try to clear it:
-							if (theApp.clearPassword()) {
-								Toast.makeText(v.getContext(),
-										R.string.dialog_password_clear_success,
+							// If the password looks valid, first try to decrypt the
+							// sequence keys in the database:
+							if (theApp.getDBHelper().decryptAllSequenceKeys()) {
+								// Now try to actually clear the password
+								if (theApp.clearPassword()) {
+									Toast.makeText(v.getContext(),
+											R.string.dialog_password_clear_success,
+											Toast.LENGTH_LONG).show();
+									// If we succeeded, change the button text on the main
+									// activity to state that pressing it again will set
+									// a new password:
+									btnSetPassword.setText(R.string.settings_password_btn_set);
+								// Clearing the password failed:
+								} else Toast.makeText(v.getContext(),
+										R.string.dialog_password_clear_failure,
 										Toast.LENGTH_LONG).show();
-								// If we succeeded, change the button text on the main
-								// activity to state that pressing it again will set
-								// a new password:
-								btnSetPassword.setText(R.string.settings_password_btn_set);
-							// If that failed, complain:
+								removeDialog(DIALOG_PASSWORD_CLEAR);
+							// Decrypting the sequence keys failed:
 							} else Toast.makeText(v.getContext(),
 									R.string.dialog_password_clear_failure,
 									Toast.LENGTH_LONG).show();
