@@ -93,6 +93,10 @@ You can later remove your password by repeating this process; instead of "Set Pa
 
 Please note that your password will be stored in the system as a one-way cryptographic hash, meaning it cannot be recovered if it is lost. If you forget your password, the only way you will be able to get back into PPP for Android will be to delete all data in the database. This can be done from the Android system settings, but it is easier to access from the PPP for Android password prompt screen. Tap the Menu hard button, then select "Clear Password". You will be asked for confirmation before your data will be deleted.
 
+===Does setting a password encrypt my card set data?===
+
+Not yet. As of this writing, all card set data is stored in the clear in the application database. While there are protections built into Android to prevent other applications or the user from directly accessing databases outside the application that created them, there _are_ means of bypassing these protections, such as "rooting" the device. Therefore, we are planning to add functionality that encrypts the sequence keys of all card sets whenever the password is set (see above). If the password is cleared, the sequence keys will decrypted and stored once again in plain text. If the password is removed from the password prompt rather than the settings activity, the data will be deleted rather than decrypted.
+
 ===Can I stop PPP for Android from copying passcodes to the clipboard?===
 
 Yes. From the initial card list, tap the Menu hard button, then select Settings. Uncheck the "Copy Passcodes to Clipboard" check box. This change takes effect immediately and striking out any subsequent passcode will no longer copy the passcode to the clipboard. If you'd like to re-enable this feature, simply repeat this process.
