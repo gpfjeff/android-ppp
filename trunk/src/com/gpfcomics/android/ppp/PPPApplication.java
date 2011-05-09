@@ -305,9 +305,10 @@ public class PPPApplication extends Application {
 	 * @return The encrypted sequence key string
 	 */
 	String encryptSequenceKey(String original) {
-		if (original == null || cipher == null)
+		if (original == null || cipherKey == null)
 			return original;
 		try {
+			cipher = Cipher.getInstance(KEY_FACTORY);
 			cipher.init(Cipher.ENCRYPT_MODE, cipherKey, cipherAPS);
 			return bytesToHexString(cipher.doFinal(original.getBytes(ENCODING)));
 		} catch (Exception e) {
@@ -323,9 +324,10 @@ public class PPPApplication extends Application {
 	 * @return The decrypted sequence key string
 	 */
 	String decryptSequenceKey(String original) {
-		if (original == null || cipher == null)
+		if (original == null || cipherKey == null)
 			return original;
 		try {
+			cipher = Cipher.getInstance(KEY_FACTORY);
 			cipher.init(Cipher.DECRYPT_MODE, cipherKey, cipherAPS);
 			return bytesToHexString(cipher.doFinal(original.getBytes(ENCODING)));
 		} catch (Exception e) {
