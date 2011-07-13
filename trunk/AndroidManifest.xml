@@ -11,9 +11,8 @@
 		android:anyDensity="true"
 		android:resizeable="true"/>
 
-    <application android:icon="@drawable/icon"
-    	android:label="@string/app_name"
-    	android:name="PPPApplication">
+    <application android:label="@string/app_name"
+    	android:name="PPPApplication" android:icon="@drawable/launcher_icon">
         <activity android:name=".PasswordPromptActivity"
             android:label="@string/app_name"
         	android:stateNotNeeded="true"

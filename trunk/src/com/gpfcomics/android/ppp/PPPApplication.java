@@ -25,13 +25,15 @@
 package com.gpfcomics.android.ppp;
 
 import java.security.MessageDigest;
-import java.security.spec.AlgorithmParameterSpec;
+import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
+import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.engines.RijndaelEngine;
+import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 
 import android.app.Application;
 import android.content.Context;
@@ -68,22 +70,10 @@ public class PPPApplication extends Application {
 		the clipboard when they are "struck through". */
 	private static final String PREF_COPY_PASSCODES_TO_CLIPBOARD = "pass_to_clip";
 	
-	/** The cryptographic key factory definition.  This will be used by most
-	 *  cryptography functions throughout the application (with the exception
-	 *  being the new cross-platform import/export format).  Note that this
-	 *  will be a "password-based encryption" (PBE) cipher (specifically 
-	 *  256-bit AES as of this writing), so take that into account when
-	 *  using this value. */
-	private static final String KEY_FACTORY = "PBEWITHSHA-256AND256BITAES-CBC-BC";
-
 	/** The number of iterations used for cryptographic key generation, such
 	 *  as in creating an AlgorithmParameterSpec.  Ideally, this should be
 	 *  fairly high, but we'll use a modest value for performance. */
 	private static final int KEY_ITERATION_COUNT = 50;
-
-	/** The length of generated encryption keys.  This will be used for
-	 *  generating encryption key specs. */
-	private static final int KEY_LENGTH = 32;
 
 	/** The cryptographic hash to use to generate encryption salts.  Pass this
 	 *  into MessageDigest.getInstance() to get the MessageDigest for salt
@@ -96,6 +86,12 @@ public class PPPApplication extends Application {
 	/** The character encoding used to convert strings to binary data, primarily
 	 *  in cryptographic hash operations. */
 	private static final String ENCODING = "UTF-8";
+	
+	/** The size of the AES encryption key in bits */
+	private static final int KEY_SIZE = 256;
+
+	/** The size of the AES encryption initialization vector (IV) in bits */
+	private static final int IV_SIZE = 128;
 	
 	// ################### Private Members #################################
 	
@@ -118,13 +114,10 @@ public class PPPApplication extends Application {
 	private static String versionName = null;
 	
 	/** An cipher for the encryption and decryption of sequence keys */
-	private static Cipher cipher = null;
+	private static BufferedBlockCipher cipher = null;
 	
-	/** The secret key used for encryption and decryption */
-	private static SecretKey cipherKey = null;
-	
-	/** The cipher algorithm parameter spec */
-	private static AlgorithmParameterSpec cipherAPS = null;
+	/** The initialization vector (IV) used by our cipher */
+	private static ParametersWithIV iv = null;
 	
 	// ################### Public Methods #################################
 	
@@ -177,9 +170,9 @@ public class PPPApplication extends Application {
 				copyPasscodes = prefs.getBoolean(PREF_COPY_PASSCODES_TO_CLIPBOARD,
 						true);
 			}
-			// If there's currently a password set, we need to set up our ciphers
+			// If there's currently a password set, we need to set up our cipher
 			// for encryption and decryption:
-			if (promptForPassword()) createCiphers();
+			if (promptForPassword()) createCipher();
 		} catch (Exception e) {
 			// I'm not sure what to do here if something blows up. :\
 		}
@@ -248,9 +241,64 @@ public class PPPApplication extends Application {
      */
     public static String bytesToHexString(byte[] bytes) {
     	if (bytes == null) return null;
+    	// A StringBuilder should be a lot more efficient that creating a
+    	// bunch of throw-away String objects:
     	StringBuilder sb = new StringBuilder();
         for (byte b : bytes) sb.append(String.format("%1$02X", b));
         return sb.toString().toUpperCase();
+    }
+    
+    /**
+     * Convert a string of hexadecimal characters to the equivalent byte array
+     * @param hex A string of hexadecimal characters.  The alphabetic characters
+     * may be in upper or lower case, and the length of the string must be
+     * divisible by two.
+     * @return A byte array containing the decoded data.
+     * @throws IllegalArgumentException Thrown if the input string is not a valid
+     * hexadecimal string
+     */
+    public static byte[] hexStringToBytes(String hex) {
+    	// This is lifted mostly from the equivalent code out of
+    	// com.gpfcomics.android.ppp.jppp.PPPengine, although abstracted a bit
+    	// to allow for an arbitrary length hex string.  It could probably use
+    	// some efficiency tweaks as the substring creates a lot of throw-away
+    	// String objects, but it still ought to work.
+    	//
+    	// If the input string is null or its length is not a multiple of two,
+    	// it isn't valid:
+    	if (hex == null || hex.length() == 0 || hex.length() % 2 != 0)
+    		throw new IllegalArgumentException("Invalid hexadecimal string");
+    	// If the input string does not consist entirely of hex digits,
+    	// it isn't valid:
+    	if (!Pattern.matches("^[0-9a-fA-F]+$", hex))
+    		throw new IllegalArgumentException("Invalid hexadecimal string");
+    	// Now that that's out of the way, this should be pretty straight-forward.
+    	// The output size will be the length of the hex string divided by two,
+    	// since two hex digits are equivalent to a byte.  We'll put this size
+    	// into a variable so we won't have to recompute it.  Next, allocate the
+    	// output array at that size and create a temporary String to hold each
+    	// two-digit substring.
+    	int outputSize = hex.length() / 2;
+    	byte[] out = new byte[outputSize];
+    	String temp = null;
+    	// Step through the string, breaking it into two-digit chunks:
+    	for (int i = 0; i < outputSize; ++i) {
+		    temp = hex.substring(i * 2, i * 2 + 2);
+		    // Try to convert the string to binary by using the convenient
+		    // Integer.parseInt() method.  Since we're only dealing with
+		    // byte-sized chunks, we should then be able to cast that to a
+		    // byte with no problem.
+		    try {
+				int b = Integer.parseInt(temp, 16);
+				out[i] = (byte)b;
+			// This should only happen if we failed the tests above, but if
+			// the parse fails, complain:
+		    } catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Invalid hexadecimal string");
+		    }
+    	}
+    	// Return the output array:
+	    return out;
     }
     
     /**
@@ -274,12 +322,16 @@ public class PPPApplication extends Application {
 	 */
 	boolean setPassword(String password) {
 		try {
+			// Store the "encrypted" password to the preferences:
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString(PREF_PASSWORD, encryptPassword(password));
 			editor.commit();
-			createCiphers();
+			// Create the cipher and IV objects to enable crypto:
+			createCipher();
 			return true;
-		} catch (Exception e) { return false; }
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	/**
@@ -289,10 +341,13 @@ public class PPPApplication extends Application {
 	 */
 	boolean clearPassword() {
 		try {
+			// Remove the password from the preferences:
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.remove(PREF_PASSWORD);
 			editor.commit();
-			createCiphers();
+			// Note that this will null out the cipher and IV, disabling all
+			// cryptographic functions on sequence keys:
+			createCipher();
 			return true;
 		} catch (Exception e) { return false; }
 	}
@@ -305,12 +360,16 @@ public class PPPApplication extends Application {
 	 * @return The encrypted sequence key string
 	 */
 	String encryptSequenceKey(String original) {
-		if (original == null || cipherKey == null)
-			return original;
 		try {
-			cipher = Cipher.getInstance(KEY_FACTORY);
-			cipher.init(Cipher.ENCRYPT_MODE, cipherKey, cipherAPS);
-			return bytesToHexString(cipher.doFinal(original.getBytes(ENCODING)));
+			// Since cryptSeqKey() requires a byte array, convert the input string
+			// to bytes using the default encoding, then enable encryption mode:
+			byte[] output = cryptSeqKey(original.getBytes(ENCODING),
+					Cipher.ENCRYPT_MODE);
+			// If cryptSeqKey() blows up, we'll get a null.  In that case, return
+			// the original string as described above.  Otherwise, convert the
+			// byte array result from above to a hex string and return it.
+			if (output == null) return original;
+			else return bytesToHexString(output);
 		} catch (Exception e) {
 			return original;
 		}
@@ -324,12 +383,26 @@ public class PPPApplication extends Application {
 	 * @return The decrypted sequence key string
 	 */
 	String decryptSequenceKey(String original) {
-		if (original == null || cipherKey == null)
-			return original;
 		try {
-			cipher = Cipher.getInstance(KEY_FACTORY);
-			cipher.init(Cipher.DECRYPT_MODE, cipherKey, cipherAPS);
-			return bytesToHexString(cipher.doFinal(original.getBytes(ENCODING)));
+			// The input string is a hex string that we encrypted earlier using
+			// encryptSequenceKey().  In order to get anything out of that,
+			// we'll need to convert that hex string back to bytes using
+			// hexStringToBytes().  We'll pass that to cryptSeqKey() to do the
+			// dirty work and tell it to decrypt the data.
+			byte[] output = cryptSeqKey(hexStringToBytes(original),
+					Cipher.DECRYPT_MODE);
+			// If cryptSeqKey() blows up, we'll get a null.  In that case, return
+			// the original string as described above.  Otherwise, we'll need to
+			// convert the byte data from above into the original sequence key
+			// string.  This is a bit tricky because we'll likely have some extra
+			// null data at the end of the string.  First we'll convert the bytes
+			// to a string using the default encoding, then we'll trim that string
+			// to remove any extraneous nulls that may be found.
+			if (output == null) return original;
+			else {
+				String outString = new String(output, ENCODING);
+				return outString.trim();
+			}
 		} catch (Exception e) {
 			return original;
 		}
@@ -362,26 +435,19 @@ public class PPPApplication extends Application {
     }
     
     /**
-     * Create the encryption and decryption ciphers needed to securely store and
-     * retrieve encrypted sequence keys in the database.  Note that these ciphers
-     * will only be created if the user's password is set; otherwise, the ciphers
-     * will default to null.
+     * Create the encryption cipher needed to securely store and retrieve encrypted
+     * sequence keys in the database.  Note that this cipher will only be created if
+     * the user's password is set; otherwise, the cipher will default to null.
      */
-    private void createCiphers() {
+    private void createCipher() {
 		// Asbestos underpants:
 		try
 		{
-			// Get the stored password.  Note that this isn't the actual password
-			// the user set, but the "encrypted" password stored in the preferences
-			// generated by encryptPassword().  If no password is set, we should
-			// get a null here.
+			// The first thing we need to do is check to see if we have a password
+			// set.  There's no point doing anything if there's no password.
 			String password = prefs.getString(PREF_PASSWORD, null);
-			// Only proceed if the password was set:
 			if (password != null) {
-				// First we need to start of by creating our salt.  We're not going
-				// to hold on to this after creating the ciphers, so we'll just
-				// declare it locally here.
-				byte[] salt = null;
+				// OK, we've got a password.  Let's start by generating our salt.
 		        // To try and make this unique per device, we'll use the device's
 				// unique ID string.  To avoid the whole deprecation issue surrounding
 		        // Settings.System.ANDROID_ID vs. Settings.Secure.ANDROID_ID, we'll
@@ -392,7 +458,9 @@ public class PPPApplication extends Application {
 		        	AndroidID id = AndroidID.newInstance(this);
 		        	uniqueID = id.getAndroidID();
 		        } catch (Exception e1) { }
-		        // Check the unique ID we just fetched.  If we didn't get anything,
+		        // Check the unique ID we just fetched.  It's possible that we didn't
+		        // get anything useful; it's up to manufacturers to set the Android ID
+		        // property, and not everybody does it.  If we didn't get anything,
 		        // we'll just make up a hard-coded random-ish string and use that as
 		        // our starting point.  Of course, if we're using this, our salt will
 		        // *NOT* be unique per device, but that's the best we can do.
@@ -403,7 +471,7 @@ public class PPPApplication extends Application {
 		    	else uniqueID = uniqueID.concat(SALT);
 		        // Now get the unique ID string as raw bytes.  We'll use UTF-8 since
 		    	// everything we get should work with that encoding.
-	    		salt = uniqueID.getBytes(ENCODING);
+		    	byte[] salt = uniqueID.getBytes(ENCODING);
 		        // Ideally, we don't want to use the raw ID by itself; that's too
 		        // easy to guess.  Rather, let's hash this a few times to give us
 		        // something less predictable.
@@ -414,46 +482,84 @@ public class PPPApplication extends Application {
 				// using the value stored in the preferences directly.  We'll
 				// concatenate the unique ID generated above into the "encrypted"
 				// password, convert that to bytes, and hash it multiple times as
-				// well.  Since the encryption routines below need a character array
-				// for the password, we'll then conver that back to a string of
-				// hex digits.
-				byte[] passbytes = password.concat(uniqueID).getBytes(ENCODING);
+				// well.
+				byte[] pwd = password.concat(uniqueID).getBytes(ENCODING);
 				for (int i = 0; i < KEY_ITERATION_COUNT; i++)
-					passbytes = hasher.digest(passbytes);
-				password = bytesToHexString(passbytes);
-				// I had a devil of a time getting this to work, but I eventually
-				// peeked at the Google "Secrets" application source code to get
-				// to this setup.  The Password Based Key (PBE) spec lets us
-				// specify a password to generate keys from.  We'll use the obscured
-				// password and salt generated above.
-				PBEKeySpec pbeKeySpec =	new PBEKeySpec(password.toCharArray(),
-						salt, KEY_ITERATION_COUNT, KEY_LENGTH);
-				// Next we'll need a key factory to actually build the key:
-				SecretKeyFactory keyFac =
-					SecretKeyFactory.getInstance(KEY_FACTORY);
-				// The key is generated from the key factory:
-				cipherKey = keyFac.generateSecret(pbeKeySpec);
-				// The cipher needs some parameter specs to know how to use
-				// the key:
-				cipherAPS = new PBEParameterSpec(salt, KEY_ITERATION_COUNT);
-				// Now that we have all of this information, it's time to actually
-				// create the cipher:
-				cipher = Cipher.getInstance(KEY_FACTORY);
+					pwd = hasher.digest(pwd);
+				// From the BC JavaDoc: "Generator for PBE derived keys and IVs as
+				// defined by PKCS 5 V2.0 Scheme 2. This generator uses a SHA-1
+				// HMac as the calculation function."  This is apparently a standard.
+				PKCS5S2ParametersGenerator generator =
+					new PKCS5S2ParametersGenerator();
+				// Initialize the generator with our password and salt.  Note the
+				// iteration count value.  Examples I found around the Net set this
+				// as a hex value, but I'm not sure why advantage there is to that.
+				// I changed it to decimal for clarity.  Ideally, this should be a
+				// very large number, but experiments seem to show that setting this
+				// too high makes the program sluggish.  We'll stick to the same
+				// key iteration count we've been using.
+				generator.init(pwd, salt, KEY_ITERATION_COUNT);
+				// Generate our parameters.  We want to do AES-256, so we'll set
+				// that as our key size.  That also implies a 128-bit IV.
+				iv = ((ParametersWithIV)generator.generateDerivedParameters(KEY_SIZE,
+						IV_SIZE));
+				// Create our AES (i.e. Rijndael) engine and create the actual
+				// cipher object from it.  We'll use CBC padding.
+				RijndaelEngine engine = new RijndaelEngine();
+				cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
+			// If the password was not set, we'll null out the cipher and IV to
+			// prevent encryption from taking place:
 			} else {
-				// If the password wasn't found, null out the cipher so they
-				// won't do anything useful.
 				cipher = null;
-				cipherKey = null;
-				cipherAPS = null;
+				iv = null;
 			}
 		}
-		// If anything blew up, null out the cipher as well:
+		// If anything blew up, null out the cipher and IV as well:
 		catch (Exception e)
 		{
 			cipher = null;
-			cipherKey = null;
-			cipherAPS = null;
+			iv = null;
 		}
     }
 
+    /**
+     * Either encrypt or decrypt the specified byte array.  Whichever mode
+     * we use depends on the mode specified.  I pulled this out into a single
+     * private method because the process is the same either way with the exception
+     * of the mode (encrypt or decyrpt).  Other classes will use the protected
+     * encryptSequenceKey() and decryptSequenceKey() methods instead, which will
+     * make sure the right mode gets called.
+	 * @param original The sequence key to encrypt/decrypt.  Note that this is a
+	 * byte array and not a string.  When encrypting, use String.getBytes() to
+	 * convert the string to raw bytes first.  When decrypting, use
+	 * hexStringToBytes() to convert the encrypted string in hex format to bytes.
+     * @param mode The mode.  Must be either Cipher.ENCRYPT_MODE or
+     * Cipher.DECRYPT_MODE.
+     * @return The encrypted or decrypted data as a byte array.  For encrypted data,
+     * this may be converted to a string of hexadecimal characters suitable for
+     * passing back into this method (via decryptSequenceKey()).  For decrypted data,
+     * this data can be converted back to a string using the String(byte[], encoding)
+     * constructor, although you should also do a String.trim() on that result to
+     * remove extraneous nulls from the end.
+     */
+    private byte[] cryptSeqKey(byte[] original, int mode) {
+    	// If either the original data or the cipher object are null, return null:
+		if (original == null || original.length == 0 || cipher == null)
+			return null;
+		// Asbestos underpants:
+		try {
+			// Pick our mode, encryption or decryption:
+			if (mode == Cipher.ENCRYPT_MODE) cipher.init(true, iv);
+			else cipher.init(false, iv);
+			// Perform the crypto and return the result:
+			byte[] result = new byte[cipher.getOutputSize(original.length)];
+			int bytesSoFar = cipher.processBytes(original, 0,
+					original.length, result, 0);
+			cipher.doFinal(result, bytesSoFar);
+			return result;
+		// If anything blew up, return null:
+		} catch (Exception e) {
+			return null;
+		}
+    }
 }

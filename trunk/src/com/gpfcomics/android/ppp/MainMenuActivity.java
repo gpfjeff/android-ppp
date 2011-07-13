@@ -514,7 +514,7 @@ public class MainMenuActivity extends ListActivity {
     	// need to check for this before letting the activity manage it.
     	if (cardsetCursor != null) {
     		// Let the activity do the cursor's dirty work:
-	    	startManagingCursor(cardsetCursor);
+	    	//startManagingCursor(cardsetCursor);
 	    	// Map the name and ID to the cursor adapter and assign it to the 
 	    	// list view:
 	    	String[] from = new String[] { CardDBAdapter.KEY_NAME };
