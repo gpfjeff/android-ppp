@@ -18,7 +18,7 @@
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,

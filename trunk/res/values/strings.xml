@@ -50,6 +50,10 @@
     <string name="dialog_rename_success">Card set \"xxx\" has been successfully renamed to \"yyy\".</string>
     <string name="dialog_rename_failure">ERROR: Card set \"xxx\" could not be renamed.</string>
     <string name="dialog_rename_invalid_name">ERROR: Card set names must be non-empty.</string>
+    <string name="dialog_progress_encrypting_title">Encrypting sequence keys...</string>
+    <string name="dialog_progress_decrypting_title">Decrypting sequence keys...</string>
+    <string name="dialog_progress_encrypting_error">An error occurred while encrypting the sequence keys. Database may be corrupted.</string>
+    <string name="dialog_progress_decrypting_error">An error occurred while decrypting the sequence keys. Database may be corrupted.</string>
     <string name="menu_cardset_options_title">Card Set Options</string>
     <string name="menu_cardset_options_details">Details</string>
     <string name="menu_cardset_options_rename">Rename</string>

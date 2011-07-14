@@ -5,11 +5,14 @@
  * PROJECT:       Perfect Paper Passwords for Android
  * ANDROID V.:	  1.1
  * 
- * [Description}
+ * This activity serves as the "about" page for the application, providing copyright,
+ * authorship, acknowledgments, and licensing information.  The full GPLv3 text is
+ * accessible by launching the browser (via intent) and sending the user to the
+ * GNU.org site.
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,

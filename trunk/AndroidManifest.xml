@@ -3,8 +3,9 @@
       package="com.gpfcomics.android.ppp"
       android:versionCode="1"
       android:versionName="1.0 ALPHA">
-    <uses-sdk android:minSdkVersion="2" android:targetSdkVersion="4"/>
+    <uses-sdk android:minSdkVersion="2" android:targetSdkVersion="11"/>
 	<supports-screens
+		android:xlargeScreens="true"
 		android:largeScreens="true"
 		android:normalScreens="true"
 		android:smallScreens="true"

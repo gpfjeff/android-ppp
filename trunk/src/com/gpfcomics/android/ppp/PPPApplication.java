@@ -5,11 +5,14 @@
  * PROJECT:       Perfect Paper Passwords for Android
  * ANDROID V.:	  1.1
  * 
- * [Description]
+ * This class provides the core application code for Perfect Paper Passwords,
+ * holding common objects such as the database adapter and shared preferences
+ * as well as storing centralized routines dealing with passwords, ciphers,
+ * and settings.
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
@@ -25,6 +28,7 @@
 package com.gpfcomics.android.ppp;
 
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
@@ -69,6 +73,10 @@ public class PPPApplication extends Application {
 	    preference with regard to whether or not passcodes should be copied to
 		the clipboard when they are "struck through". */
 	private static final String PREF_COPY_PASSCODES_TO_CLIPBOARD = "pass_to_clip";
+	
+	/** This constant is used in the preferences file to identify the salt used
+	 *  for cryptogrphaic operations. */
+	private static final String PREF_SALT = "salt";
 	
 	/** The number of iterations used for cryptographic key generation, such
 	 *  as in creating an AlgorithmParameterSpec.  Ideally, this should be
@@ -119,6 +127,8 @@ public class PPPApplication extends Application {
 	/** The initialization vector (IV) used by our cipher */
 	private static ParametersWithIV iv = null;
 	
+	private byte[] salt = null;
+	
 	// ################### Public Methods #################################
 	
 	@Override
@@ -164,11 +174,41 @@ public class PPPApplication extends Application {
 				// if this ever occurs.
 			// Is our version number newer than the previous one?  Time to upgrade:
 			} else if (versionCode > oldVersion) {
-				// There shouldn't be anything to do here yet...
-			// If the version number matches, restore the user's preferences:
+				// There shouldn't be anything to do here yet, but in the future
+				// we can add version-related upgrade tasks based on the current and
+				// old version codes.  For example, we can upgrade from version x
+				// to version y with the following code snippet:
+				//
+				// if (oldVersion < VERSION_Y) {
+				//		// Perform whatever steps necessary to bring the old version
+				//		// (version x) up to par with version y
+				//		oldVersion = VERSION_Y;
+				// }
+				//
+				// These if statements should follow one after the other WITHOUT
+				// else statements, so version n can be upgraded to version n + 3
+				// by falling from one if statement to the next in turn.
+			}
+			// Get the user's preference for the "copy passcodes to clipboard"
+			// option.  Note that if this hasn't been set, the default is to
+			// turn this feature on.
+			copyPasscodes = prefs.getBoolean(PREF_COPY_PASSCODES_TO_CLIPBOARD,
+					true);
+			// Attempt to get the randomly generated encryption salt.  If it isn't
+			// in the preferences file, generate a new salt and store it.  If it
+			// was in the file, restore the salt to its binary form.
+			String saltString = prefs.getString(PREF_SALT, null);
+			if (saltString == null) {
+				// Note that we use java.security.SecureRandom to get something
+				// that is cryptographically secure:
+				SecureRandom devRandom = new SecureRandom();
+				salt = new byte[512];
+				devRandom.nextBytes(salt);
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putString(PREF_SALT, bytesToHexString(salt));
+				editor.commit();
 			} else {
-				copyPasscodes = prefs.getBoolean(PREF_COPY_PASSCODES_TO_CLIPBOARD,
-						true);
+				salt = hexStringToBytes(saltString);
 			}
 			// If there's currently a password set, we need to set up our cipher
 			// for encryption and decryption:
@@ -471,13 +511,22 @@ public class PPPApplication extends Application {
 		    	else uniqueID = uniqueID.concat(SALT);
 		        // Now get the unique ID string as raw bytes.  We'll use UTF-8 since
 		    	// everything we get should work with that encoding.
-		    	byte[] salt = uniqueID.getBytes(ENCODING);
+		    	byte[] uniqueIDBytes = uniqueID.getBytes(ENCODING); 
+		    	// Generate our final salt value by combining the unique ID generated
+		    	// above with the random salt stored in the preferences file:
+		    	byte[] finalSalt = new byte[uniqueIDBytes.length + salt.length];
+		    	for (int i = 0; i < uniqueIDBytes.length; i++) {
+		    		finalSalt[i] = uniqueIDBytes[i];
+		    	}
+		    	for (int j = 0; j < salt.length; j++) {
+		    		finalSalt[uniqueIDBytes.length + j] = salt[j];
+		    	}
 		        // Ideally, we don't want to use the raw ID by itself; that's too
 		        // easy to guess.  Rather, let's hash this a few times to give us
 		        // something less predictable.
 				MessageDigest hasher = MessageDigest.getInstance(SALT_HASH);
 				for (int i = 0; i < KEY_ITERATION_COUNT; i++)
-					salt = hasher.digest(salt);
+					finalSalt = hasher.digest(finalSalt);
 				// Now, for good measure, let's obscure our password so we won't be
 				// using the value stored in the preferences directly.  We'll
 				// concatenate the unique ID generated above into the "encrypted"
@@ -498,7 +547,7 @@ public class PPPApplication extends Application {
 				// very large number, but experiments seem to show that setting this
 				// too high makes the program sluggish.  We'll stick to the same
 				// key iteration count we've been using.
-				generator.init(pwd, salt, KEY_ITERATION_COUNT);
+				generator.init(pwd, finalSalt, KEY_ITERATION_COUNT);
 				// Generate our parameters.  We want to do AES-256, so we'll set
 				// that as our key size.  That also implies a 128-bit IV.
 				iv = ((ParametersWithIV)generator.generateDerivedParameters(KEY_SIZE,
