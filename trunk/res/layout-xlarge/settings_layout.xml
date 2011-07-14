@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+	<ScrollView android:id="@+id/ScrollViewSettings"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    		android:orientation="vertical"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/settings_password_prompt_label"
+				android:text="@string/settings_password_prompt"
+				android:textSize="20sp"></TextView>
+			<Button android:id="@+id/settings_password_btn"
+				android:layout_height="wrap_content"
+				android:layout_width="fill_parent"
+				android:text="@string/settings_password_btn_set"></Button>
+			<CheckBox android:id="@+id/settings_copy_passcodes_chk"
+				android:text="@string/settings_copy_passcodes_chk"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:textSize="20sp"></CheckBox>
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>
