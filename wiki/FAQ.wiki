@@ -95,8 +95,26 @@ Please note that your password will be stored in the system as a one-way cryptog
 
 ===Does setting a password encrypt my card set data?===
 
-Not yet. As of this writing, all card set data is stored in the clear in the application database. While there are protections built into Android to prevent other applications or the user from directly accessing databases outside the application that created them, there _are_ means of bypassing these protections, such as "rooting" the device. Therefore, we are planning to add functionality that encrypts the sequence keys of all card sets whenever the password is set (see above). If the password is cleared, the sequence keys will decrypted and stored once again in plain text. If the password is removed from the password prompt rather than the settings activity, the data will be deleted rather than decrypted.
+Partially. When the master password is set, all card set sequence keys in the database will be encrypted using AES-256 keyed off the master password and salted using a randomly generated salt. The sequence key will be decrypted on the fly whenever the card set details or the current card are displayed. This encryption is transparent to the user; the app will operate in an identical fashion whether the sequence key is encrypted or not. If the master password is cleared through the settings activity, all sequence keys will be subsequently decrypted and stored in the clear as before.
+
+While there are protections built into Android to prevent other applications or the user from directly accessing databases outside the application that created them, there _are_ means of bypassing these protections, such as "rooting" the device. Therefore, encrypting at least part of the card set data provides an additional layer of protection for the user's data. After careful consideration, we determined that the most critical part of the card set is the sequence key, which drives the PPP engine and makes each card set unique. The remaining metadata (rows, columns, alphabet, etc.) are also sensitive, but they will be useless without the unique sequence key to drive them. Thus, as a trade-off between security and performance, we elected to encrypt just the sequence key and leave the remaining parameters in the clear.
 
 ===Can I stop PPP for Android from copying passcodes to the clipboard?===
 
 Yes. From the initial card list, tap the Menu hard button, then select Settings. Uncheck the "Copy Passcodes to Clipboard" check box. This change takes effect immediately and striking out any subsequent passcode will no longer copy the passcode to the clipboard. If you'd like to re-enable this feature, simply repeat this process.
+
+==Platform Questions==
+
+===What versions of Android will PPP run on?===
+
+We want to make PPP for Android as accessible as possible. Therefore, we are targeting a minimum version of Android 1.1 (API level 2). Because Android has built-in forward compatibility, this means it will run on every version of the platform after Android 1.1, although some versions may offer a less optimal user experience.
+
+===Will PPP for Android run on Android tablets (i.e. "Honeycomb" (3.0) or later)?===
+
+Yes. See the question above; Android apps are inherently forward compatible, so PPP for Android will run on "Honeycomb" and later tablets. We are also working on a dedicated "extra large" layout to accommodate the tablet form factor. While it may not make the most efficient use of a tablet's screen real estate, PPP for Android should look like a native 3.0+ app.
+
+===What special permissions will PPP for Android require to run?===
+
+Currently, PPP for Android does not require any special permissions. It does not access the Internet, it does not access the SD card or other forms of external storage, and it does not require access to your mail, contacts, phone features, camera, or any other specialized hardware. Like Mr. Gibson, we believe in a "trust no one" mentality, and we don't believe an application like PPP for Android should be snooping around where it does not belong. Since none of these features are required, they are not requested.
+
+Note, however, that if we implement some of the features listed on the FutureFeatures page, this policy may change. For example, adding the ability to import or export card set data may require adding permission to write to external storage (i.e. the SD card). We will announce these changes if and when they become relevant.
