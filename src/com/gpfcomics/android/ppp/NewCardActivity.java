@@ -5,11 +5,16 @@
  * PROJECT:       Perfect Paper Passwords for Android
  * ANDROID V.:	  1.1
  * 
- * [Description]
+ * This activity provides the main UI for creating a new card set.  When launched,
+ * it populates all the parameters with sane defaults, such as a generic card set
+ * name, a randomly generated sequence key, and the default alphabet and number of
+ * rows, columns, passcode length, etc.  It provides error checking on the inputs
+ * (mostly calling the validation methods in the Cardset class) and stores the card
+ * set data to the database if the user decides to keep the new card set.
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,

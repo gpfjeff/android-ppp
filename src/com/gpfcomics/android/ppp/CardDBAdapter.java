@@ -5,11 +5,14 @@
  * PROJECT:       Perfect Paper Passwords for Android
  * ANDROID V.:	  1.1
  * 
- * [Description]
+ * This class provides an interface between the PPP card set database and the rest
+ * of the application.  All database interactions should and must go through this
+ * class.  The common shared instance of the DB adapter will be "owned" by the
+ * overall application class, PPPApplication.
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
@@ -30,6 +33,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /**
@@ -182,6 +188,32 @@ class CardDBAdapter {
      */
     void close() {
         mDbHelper.close();
+    }
+    
+    /**
+     * Get a count of all card sets in the database
+     * @return The number of card set records in the database, or -1 if an error
+     * has occurred.
+     */
+    int countCarsets() {
+    	// Asbestos underpants:
+    	try {
+    		// Query the DB to see if we can get a count of the cardsets:
+    		int count = 0;
+    		Cursor c = mDb.rawQuery("select count(*) as count from " +
+    				DATABASE_TABLE_CARDSETS +";", null);
+    		// If the query was successful, return the count:
+    		if (c != null) {
+    			c.moveToFirst();
+    			count = c.getInt(c.getColumnIndex("count"));
+    			c.close();
+    			return count;
+    		// If the query didn't return anything, return zero:
+    		} else return 0;
+    	// If anything blew up, return -1 as an error code;
+    	} catch (Exception e) {
+    		return -1;
+    	}
     }
     
     /**
@@ -528,9 +560,10 @@ class CardDBAdapter {
      * sequence keys in the database using a key derived from this password.  This
      * must be called *AFTER* the password has been set within the application, as
      * setting the password creates the encryption cipher.
+     * @param handler A Handler object to accept progress notifications
      * @return True on success, false on failure
      */
-    boolean encryptAllSequenceKeys() {
+    boolean encryptAllSequenceKeys(Handler handler) {
     	// Make sure the password has already been set within the application.
     	// This ensures that the encryption cipher should be ready and waiting
     	// for us.
@@ -542,7 +575,14 @@ class CardDBAdapter {
 					null);
 			// If there's any data to work with:
 			if (c != null && c.getCount() > 0) {
+				// Move to the first item in the list:
 				c.moveToFirst();
+				// Declare a count so we can keep track of our progress:
+				int count = 0;
+				// Declare a message and bundle to tell the handler of our
+				// progress:
+				Message msg = null;
+	            Bundle b = null;
 				// Loop through each one:
     			while (!c.isAfterLast()) {
     				// Get the ID and sequence key:
@@ -556,6 +596,15 @@ class CardDBAdapter {
     	    		values.put("sequence_key", seqKey);
     	    		mDb.update(DATABASE_TABLE_CARDSETS, values,
     	    				KEY_CARDSETID + "=" + id, null);
+    	    		// Bump up the count by one:
+    	    		count++;
+    	    		// Notify the handler of our progress:
+    	    		msg = handler.obtainMessage();
+                    b = new Bundle();
+                    b.putInt("count", count);
+                    msg.setData(b);
+                    handler.sendMessage(msg);
+                    // Move to the next record:
     				c.moveToNext();
     			}
 			}
@@ -569,9 +618,10 @@ class CardDBAdapter {
      * all sequence keys in the database.  This should be called *BEFORE* the
      * password is actually cleared as we'll need the password and related ciphers
      * to release the data.
+     * @param handler A Handler object to accept progress notifications
      * @return True on success, false on failure
      */
-    boolean decryptAllSequenceKeys() {
+    boolean decryptAllSequenceKeys(Handler handler) {
     	// Make sure the password is still set.  We can't decrypt the database
     	// if we don't have the password anymore!
     	if (theApp.promptForPassword()) {
@@ -582,7 +632,14 @@ class CardDBAdapter {
 					null);
 			// If there's any data to work with:
 			if (c != null && c.getCount() > 0) {
+				// Move to the first item in the list:
 				c.moveToFirst();
+				// Declare a count so we can keep track of our progress:
+				int count = 0;
+				// Declare a message and bundle to tell the handler of our
+				// progress:
+				Message msg = null;
+	            Bundle b = null;
 				// Loop through each one:
     			while (!c.isAfterLast()) {
     				// Get the ID and sequence key:
@@ -596,6 +653,15 @@ class CardDBAdapter {
     	    		values.put("sequence_key", seqKey);
     	    		mDb.update(DATABASE_TABLE_CARDSETS, values,
     	    				KEY_CARDSETID + "=" + id, null);
+    	    		// Bump up the count by one:
+    	    		count++;
+    	    		// Notify the handler of our progress:
+    	    		msg = handler.obtainMessage();
+                    b = new Bundle();
+                    b.putInt("count", count);
+                    msg.setData(b);
+                    handler.sendMessage(msg);
+                    // Move to the next record:
     				c.moveToNext();
     			}
 			}

@@ -12,7 +12,7 @@
  * 
  * This program is Copyright 2011, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
- * Web:     http://www.gpf-comics.com/
+ * Web:     https://code.google.com/p/android-ppp/
  * 
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
@@ -46,7 +46,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.ClipboardManager;
 import android.text.Editable;
 import android.view.Gravity;
 import android.view.Menu;
@@ -366,7 +365,7 @@ public class CardViewActivity extends Activity implements
 						// requires it.
 						if (tb.isChecked() && theApp.copyPasscodesToClipboard()) {
 							ClipboardManager clippy =
-								(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+								ClipboardManager.newInstance(theApp);
 							clippy.setText(tb.getTextOn());
 							Toast.makeText(v.getContext(), 
 									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token), letters[col - 1] + row),
