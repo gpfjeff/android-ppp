@@ -22,7 +22,7 @@
 				android:gravity="center|center_horizontal|center_vertical"
 				android:padding="10dip"
 				android:text="Passcard Title"
-    			android:textSize="28sp"
+    			android:textSize="36sp"
     			android:textStyle="bold"></TextView>
 			<TextView></TextView>
 		</TableRow>
@@ -33,7 +33,7 @@
 				android:gravity="center|center_horizontal|center_vertical"
 				android:padding="10dip"
 				android:text="Card 1"
-				android:textSize="20sp"></TextView>
+				android:textSize="28sp"></TextView>
 			<Button android:id="@+id/card_next_button"
 				android:text="&gt;&gt;"></Button>
 		</TableRow>

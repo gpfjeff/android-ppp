@@ -439,9 +439,11 @@ public class MainMenuActivity extends ListActivity {
     
     public boolean onCreateOptionsMenu(Menu menu) {
     	// Create the option menu:
+    	boolean haveCardSets = theApp.getDBHelper().countCarsets() > 0;
     	menu.add(0, OPTMENU_NEW, Menu.NONE,
         		R.string.optmenu_new).setIcon(android.R.drawable.ic_menu_add);
-    	menu.add(0, OPTMENU_DELETE_ALL, Menu.NONE,
+    	if (haveCardSets)
+    		menu.add(0, OPTMENU_DELETE_ALL, Menu.NONE,
 				R.string.optmenu_delete_all).setIcon(android.R.drawable.ic_menu_delete);
     	menu.add(0, OPTMENU_SETTINGS, Menu.NONE,
 				R.string.optmenu_settings).setIcon(android.R.drawable.ic_menu_preferences);
@@ -453,6 +455,7 @@ public class MainMenuActivity extends ListActivity {
     }
     
     public boolean onOptionsItemSelected(MenuItem item) {
+    	boolean haveCardSets = theApp.getDBHelper().countCarsets() > 0;
     	switch (item.getItemId()) {
     		// If the New option item is selected, launch the new card set
     		// activity:
@@ -471,7 +474,13 @@ public class MainMenuActivity extends ListActivity {
 	    		return true;
 	    	// Launch the help text for this activity:
 	    	case OPTMENU_HELP:
-	    		Toast.makeText(getBaseContext(), R.string.error_not_implemented, Toast.LENGTH_LONG).show();
+	    		//Toast.makeText(getBaseContext(), R.string.error_not_implemented, Toast.LENGTH_LONG).show();
+	    		Intent i4 = new Intent(getBaseContext(), HelpActivity.class);;
+	    		if (haveCardSets)
+	    			i4.putExtra("helptext", R.string.help_text_cardset_list);
+	    		else
+	    			i4.putExtra("helptext", R.string.help_text_intro);
+	    		startActivity(i4);
 	    		return true;
 	    	// Send the user to the About page:
 	    	case OPTMENU_ABOUT:

@@ -383,6 +383,7 @@ public class CardViewActivity extends Activity implements
 	        
 	    	// Get the table layout where we'll build our card:
 	        TableLayout tl = (TableLayout)findViewById(R.id.cardtable);
+	        //tl.setClipToPadding(false);
 	        // We need some sort of placeholder to put as the toggle button on/off
 	        // text if this is our first time through.  We'll use a StringBuilder to
 	        // make a string the same length as the passcodes.
@@ -390,6 +391,23 @@ public class CardViewActivity extends Activity implements
 	        for (int i = 0; i < cardSet.getPasscodeLength(); i++)
 	        	sb.append("x");
 	        String dummy = sb.toString();
+	        // Since we're building our table of toggle buttons programmatically,
+	        // we can't specify the text size of the buttons in the layouts.  This
+	        // becomes a problem with the larger screen sizes because our passcodes
+	        // don't seem to scale to the larger screens like the rest of the app
+	        // does.  To get around that, we've got a dimensions resource that
+	        // contains the text size for the toggle buttons and the row and column
+	        // headings.  We'll qualify that with the screen size to "scale" the
+	        // text size as needed.  Since all the table elements will share the
+	        // same size, we'll pull that value into a float once here and reuse
+	        // that variable below.
+	        float textSize = getResources().getDimension(R.dimen.passcode_text_size);
+	        // Do the same with the padding between elements, which we'll reduce
+	        // for larger screens.  We need to separate out the vertical and
+	        // horizontal padding as we'll want to reduce the horizontal padding
+	        // for large screens but not the vertical padding.
+	        int vPadding = getResources().getInteger(R.integer.passcode_padding_vertical);
+	        int hPadding = getResources().getInteger(R.integer.passcode_padding_horizontal);
 	        // We'll loop through each row and build it dynamically.  Conveniently,
 	        // row zero will be our header, which means our actual button rows will
 	        // start at one, matching the value we want in the database.
@@ -407,7 +425,8 @@ public class CardViewActivity extends Activity implements
 	            	if (col == 0) {
 	            		TextView tv = new TextView(this);
 	            		tv.setGravity(Gravity.CENTER);
-	            		tv.setPadding(2, 2, 2, 2);
+	            		tv.setPadding(hPadding, vPadding, hPadding, vPadding);
+	            		tv.setTextSize(textSize);
 	            		// The upper left corner won't contain anything, while all
 	            		// the other rows will have the row number.  Conveniently,
 	            		// we don't need any math to get the row number value we want.
@@ -423,7 +442,8 @@ public class CardViewActivity extends Activity implements
 	            		if (row == 0) {
 	            			TextView tv2 = new TextView(this);
 	                		tv2.setGravity(Gravity.CENTER);
-	                		tv2.setPadding(2, 2, 2, 2);
+	                		tv2.setPadding(hPadding, vPadding, hPadding, vPadding);
+		            		tv2.setTextSize(textSize);
 	                		tv2.setText(letters[col - 1]);
 	                		tr.addView(tv2);
 	            		// The rest of the rows will contain our actual ToggleButtons
@@ -461,7 +481,8 @@ public class CardViewActivity extends Activity implements
 	            			}
 	            			// Set our gravity, padding, and typeface:
 	            			tb.setGravity(Gravity.CENTER);
-	                		tb.setPadding(2, 2, 2, 2);
+	                		tb.setPadding(hPadding, vPadding, hPadding, vPadding);
+		            		tb.setTextSize(textSize);
 	            			tb.setTypeface(Typeface.MONOSPACE);
 	            			// I'm not sure why, but setting the layout parameters
 	            			// doesn't work here.  If they're set, nothing gets
