@@ -375,11 +375,16 @@ public class MainMenuActivity extends ListActivity {
     	// view activity, and pass it the database ID for the card set to view.
     	super.onListItemClick(l, v, position, id);
     	cardsetCursor.moveToPosition(position);
-    	Intent i = new Intent(this, CardViewActivity.class);
-    	i.putExtra(CardDBAdapter.KEY_CARDSETID, id);
+    	Intent i = null;
+    	if (getResources().getBoolean(R.bool.is_small_screen)) {
+	    	i = new Intent(this, SinglePasscodeActivity.class);
+    	} else {
+	    	i = new Intent(this, CardViewActivity.class);
+    	}
     	// Technically, we don't need a result here, so for now we'll just use
     	// startActivity() rather than startActivityForResult().  We may change
     	// that if a return code is needed later.
+    	i.putExtra(CardDBAdapter.KEY_CARDSETID, id);
     	startActivity(i);
     }
     
