@@ -71,6 +71,9 @@
     <string name="new_card_failure">ERROR: Card set \"xxx\" could not be saved to the database.</string>
     <string name="cardset_details_last_card">Last Card:</string>
     <string name="cardset_details_toggle_count">Total Strike-Outs:</string>
+    <string name="single_pc_cardnum_label">Card Number</string>
+    <string name="single_pc_row_label">Row</string>
+    <string name="single_pc_column_label">Column</string>
     <string name="optmenu_about">About</string>
     <string name="optmenu_clear_password">Clear Password</string>
     <string name="optmenu_clear_strikes">Clear</string>

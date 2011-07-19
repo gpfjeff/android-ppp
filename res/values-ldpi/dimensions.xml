@@ -3,5 +3,5 @@
     <dimen name="passcode_text_size">14sp</dimen>
     <integer name="passcode_padding_horizontal">2</integer>
     <integer name="passcode_padding_vertical">2</integer>
-    <bool name="is_small_screen">false</bool>
+    <bool name="is_small_screen">true</bool>
 </resources>

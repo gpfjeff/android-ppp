@@ -539,6 +539,36 @@ class CardDBAdapter {
     }
     
     /**
+     * Get the toggle state for an individual passcode
+     * @param cardsetId The internal database ID of the card set containing the card
+     * @param card The card within the card set where the passcode is located
+     * @param column The column of the passcode
+     * @param row The row of the passcode
+     * @return True if the passcode has been toggled, false otherwise
+     */
+    boolean getToggleStateForPasscode(long cardsetId, int card, int column, int row) {
+    	try {
+    		// Query the strikeout table and see if there are any rows for this
+    		// combination of inputs.  If there are, then the passcode has been
+    		// toggled and we should return true.  Otherwise, return false.
+    		Cursor c = mDb.rawQuery("select * from " + DATABASE_TABLE_STRIKEOUTS +
+    				" where cardset_id = " + cardsetId + " and card = " + card +
+    				" and col = " + column + " and row = " + row + ";", null);
+    		if (c != null && c.getCount() >= 1) {
+    			c.close();
+    			return true;
+    		} else {
+    			if (c != null) c.close();
+    			return false;
+    		}
+    	// This is technically an error condition, but we'll return false if
+    	// something blew up:
+    	} catch (Exception e) {
+    		return false;
+    	}
+    }
+    
+    /**
      * Get a Cursor to drive the main menu activity's list view
      * @return A Cursor containing the name and card set ID of all card sets currently
      * stored in the database.  This may return null if no card sets were found.
@@ -550,6 +580,47 @@ class CardDBAdapter {
     				" asc;", null);
     		if (c != null && c.getCount() >= 1) return c; 
     		else return null;
+    	} catch (Exception e) {
+    		return null;
+    	}
+    }
+    
+    /**
+     * Get the column and row number of the last toggled passcode for the specified
+     * card card in the card set
+     * @param cardsetId The internal database ID of the card set containing the card
+     * @param card The card within the card set where the passcode is located
+     * @return An integer array with two elements, the first being the column number
+     * and the second being the row number.  If an error occurs or if there are
+     * currently no toggles on this card, returns null.
+     */
+    int[] getLastToggledPasscodeForCard(long cardsetId, int card) {
+    	try {
+    		// Query the DB and get all the column and row numbers for this card.
+    		// Note, however, that we'll sort the list by column then row, both
+    		// in descending order.  This should give us last passcode on the card
+    		// that was toggled as the first item in the list.
+    		Cursor c = mDb.rawQuery("select col, row from " +
+    				DATABASE_TABLE_STRIKEOUTS + " where cardset_id = " + cardsetId +
+    				" and card = " + card + " order by col desc, row desc;", null);
+    		// If we got anything back:
+    		if (c != null && c.getCount() >= 1) {
+    			// Move to the first item, then fetch its column and row value.
+    			// Return this pair to the caller.
+    			c.moveToFirst();
+    	    	int[] colRow = new int[2];
+    			colRow[0] = c.getInt(c.getColumnIndex("col"));
+    			colRow[1] = c.getInt(c.getColumnIndex("row"));
+    			c.close();
+        		return colRow;
+        	// If we didn't get anything back, that probably means there are no
+        	// toggles in the database for this card yet.  Return a null to let
+        	// the caller know there are no toggles.
+    		} else {
+    			if (c != null) c.close();
+    			return null;
+    		}
+    	// If anything blew up, return a null anyway:
     	} catch (Exception e) {
     		return null;
     	}

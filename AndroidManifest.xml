@@ -9,7 +9,7 @@
 		android:xlargeScreens="true"
 		android:largeScreens="true"
 		android:normalScreens="true"
-		android:smallScreens="false"
+		android:smallScreens="true"
 		android:anyDensity="true"
 		android:resizeable="true"/>
 
@@ -32,6 +32,16 @@
             android:alwaysRetainTaskState="false">
         </activity>
         <activity android:name=".CardViewActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false"></activity>
+        <activity android:name=".SinglePasscodeActivity"
         	android:label="@string/app_name"
         	android:clearTaskOnLaunch="true"
         	android:noHistory="true"
