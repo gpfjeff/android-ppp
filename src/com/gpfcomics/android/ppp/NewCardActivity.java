@@ -30,8 +30,11 @@
 package com.gpfcomics.android.ppp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -42,6 +45,9 @@ import android.widget.Toast;
 
 public class NewCardActivity extends Activity {
 	
+	/** This constant identifies the Help option menu */
+	private static final int OPTMENU_HELP = Menu.FIRST;
+
 	/** The passcode spinner contains a list of valid numbers for the length of the
 	 *  passcode.  By the definitions at GRC.com, this should be 2-16 characters.
 	 *  The exact values are specified within the res/values/strings.xml file, but
@@ -357,6 +363,25 @@ public class NewCardActivity extends Activity {
 			setResult(MainMenuActivity.RESPONSE_ERROR);
 			finish();
     	}
+    }
+    
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the option menu:
+    	menu.add(0, OPTMENU_HELP, Menu.NONE,
+				R.string.optmenu_help).setIcon(android.R.drawable.ic_menu_help);
+    	return true;
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+	    	// Launch the help text for this activity:
+	    	case OPTMENU_HELP:
+	    		Intent i = new Intent(getBaseContext(), HelpActivity.class);;
+    			i.putExtra("helptext", R.string.help_text_new_cardset);
+	    		startActivity(i);
+	    		return true;
+    	}
+    	return false;
     }
     
 }
