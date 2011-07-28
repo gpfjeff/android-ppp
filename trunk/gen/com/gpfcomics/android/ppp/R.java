@@ -198,7 +198,12 @@ public final class R {
         public static final int error_unknown=0x7f08006d;
         public static final int help_back_prompt=0x7f080071;
         public static final int help_text_cardset_list=0x7f080073;
+        public static final int help_text_cardview=0x7f080078;
+        public static final int help_text_details=0x7f080077;
         public static final int help_text_intro=0x7f080072;
+        public static final int help_text_new_cardset=0x7f080076;
+        public static final int help_text_password_prompt=0x7f080075;
+        public static final int help_text_settings=0x7f080074;
         public static final int help_title=0x7f080070;
         public static final int license_full_url=0x7f08006f;
         public static final int license_short=0x7f08006e;

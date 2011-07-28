@@ -186,16 +186,14 @@ public class PasswordPromptActivity extends Activity {
 	    	// If the Help item is selected, open up the help page for this
 	    	// Activity:
 	    	case OPTMENU_HELP:
-	        	//Intent i = new Intent(this, HelpActivity.class);
-	        	//i.putExtra("helptext", R.string.help_text_importexport);
-	        	//startActivity(i);
-	    		Toast.makeText(this, R.string.error_not_implemented,
-	    				Toast.LENGTH_LONG).show();
+	        	Intent i1 = new Intent(this, HelpActivity.class);
+	        	i1.putExtra("helptext", R.string.help_text_password_prompt);
+	        	startActivity(i1);
 	    		return true;
 	    	// Launch the about activity:
 	    	case OPTMENU_ABOUT:
-	    		Intent i = new Intent(this, AboutActivity.class);
-	        	startActivity(i);
+	    		Intent i2 = new Intent(this, AboutActivity.class);
+	        	startActivity(i2);
 	    		return true;
     	}
     	return false;

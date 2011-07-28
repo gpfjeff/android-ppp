@@ -29,10 +29,13 @@ package com.gpfcomics.android.ppp;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -61,6 +64,9 @@ public class SettingsActivity extends Activity {
 	/** This constant identifies the progress dialog */
 	private static final int DIALOG_PROGRESS = 920544;
 	
+	/** This constant identifies the Help option menu */
+	private static final int OPTMENU_HELP = Menu.FIRST;
+
 	/** This constant signifies an error in the cryptography thread.  It states
 	 *  that the password could not be set at the application level. */
 	private static final int THREAD_ERROR_PASSWORD_SET_FAILED = -1;
@@ -341,6 +347,25 @@ public class SettingsActivity extends Activity {
     	return dialog;
     }
     
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the option menu:
+    	menu.add(0, OPTMENU_HELP, Menu.NONE,
+				R.string.optmenu_help).setIcon(android.R.drawable.ic_menu_help);
+    	return true;
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+	    	// Launch the help text for this activity:
+	    	case OPTMENU_HELP:
+	    		Intent i = new Intent(getBaseContext(), HelpActivity.class);;
+    			i.putExtra("helptext", R.string.help_text_settings);
+	    		startActivity(i);
+	    		return true;
+    	}
+    	return false;
+    }
+    
     /**
      * This Handler will be responsible for receiving and processing messages sent
      * from the encryption/decryption thread.
@@ -385,20 +410,22 @@ public class SettingsActivity extends Activity {
     		} else if (countDone == THREAD_ERROR_NO_CARD_SETS) {
     			removeDialog(DIALOG_PROGRESS);
     			if (currentAction == ACTION_SET_PWD) {
-    				if (theApp.setPassword(newPassword))
+    				if (theApp.setPassword(newPassword)) {
         				Toast.makeText(getBaseContext(),
     							R.string.dialog_password_set_success,
     							Toast.LENGTH_LONG).show();
-    				else 
+    					btnSetPassword.setText(R.string.settings_password_btn_clear);
+    				} else 
     					Toast.makeText(getBaseContext(),
     							R.string.dialog_password_set_failure,
     							Toast.LENGTH_LONG).show();
     			} else {
-    				if (theApp.clearPassword())
+    				if (theApp.clearPassword()) {
         				Toast.makeText(getBaseContext(),
     							R.string.dialog_password_clear_success,
     							Toast.LENGTH_LONG).show();
-    				else 
+    					btnSetPassword.setText(R.string.settings_password_btn_set);
+    				} else 
     					Toast.makeText(getBaseContext(),
     							R.string.dialog_password_clear_failure,
     							Toast.LENGTH_LONG).show();

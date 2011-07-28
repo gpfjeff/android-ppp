@@ -752,11 +752,9 @@ public class CardViewActivity extends Activity implements
 	    	// If the Help item is selected, open up the help page for this
 	    	// Activity:
 	    	case OPTMENU_HELP:
-	        	//Intent i3 = new Intent(this, HelpActivity.class);
-	        	//i3.putExtra("helptext", R.string.help_text_importexport);
-	        	//startActivity(i3);
-	    		Toast.makeText(this, R.string.error_not_implemented,
-	    				Toast.LENGTH_LONG).show();
+	        	Intent i3 = new Intent(this, HelpActivity.class);
+	        	i3.putExtra("helptext", R.string.help_text_cardview);
+	        	startActivity(i3);
 	    		return true;
     	}
     	return false;

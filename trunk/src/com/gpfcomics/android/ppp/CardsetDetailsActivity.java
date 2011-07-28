@@ -206,7 +206,9 @@ public class CardsetDetailsActivity extends Activity {
 	    		return true;
 	    	// Launch the help text for this activity:
 	    	case OPTMENU_HELP:
-	    		Toast.makeText(getBaseContext(), R.string.error_not_implemented, Toast.LENGTH_LONG).show();
+	    		Intent i2 = new Intent(getBaseContext(), HelpActivity.class);;
+    			i2.putExtra("helptext", R.string.help_text_details);
+	    		startActivity(i2);
 	    		return true;
     	}
     	return false;
