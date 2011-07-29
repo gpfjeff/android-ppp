@@ -29,8 +29,11 @@ import java.util.ArrayList;
 import com.gpfcomics.android.ppp.jppp.PPPengine;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -46,6 +49,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class SinglePasscodeActivity extends Activity {
+
+	/** This constant identifies the Help option menu */
+	private static final int OPTMENU_HELP = Menu.FIRST;
 
 	/** A convenience constant pointing to the "on" or "struck through" Drawable
 	 *  resource for our card's ToggleButtons. */
@@ -338,6 +344,25 @@ public class SinglePasscodeActivity extends Activity {
 					Toast.LENGTH_LONG).show();
     		finish();
         }
+    }
+    
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the option menu:
+    	menu.add(0, OPTMENU_HELP, Menu.NONE,
+				R.string.optmenu_help).setIcon(android.R.drawable.ic_menu_help);
+    	return true;
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+	    	// Launch the help text for this activity:
+	    	case OPTMENU_HELP:
+	    		Intent i = new Intent(getBaseContext(), HelpActivity.class);;
+    			i.putExtra("helptext", R.string.help_text_singepasscode_view);
+	    		startActivity(i);
+	    		return true;
+    	}
+    	return false;
     }
     
     /**
