@@ -204,6 +204,7 @@ public final class R {
         public static final int help_text_new_cardset=0x7f080076;
         public static final int help_text_password_prompt=0x7f080075;
         public static final int help_text_settings=0x7f080074;
+        public static final int help_text_singepasscode_view=0x7f080079;
         public static final int help_title=0x7f080070;
         public static final int license_full_url=0x7f08006f;
         public static final int license_short=0x7f08006e;
