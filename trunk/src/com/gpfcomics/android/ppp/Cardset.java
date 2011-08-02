@@ -37,6 +37,7 @@
 package com.gpfcomics.android.ppp;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
@@ -200,7 +201,7 @@ public class Cardset {
 	    	this.numColumns = numColumns;
 	    	this.numRows = numRows;
 	    	this.passcodeLength = passcodeLength;
-	    	this.alphabet = alphabet;
+	    	this.alphabet = sortAlphabet(alphabet);
 	    	this.sequenceKey = sequenceKey.toUpperCase();
 	    	this.lastCard = lastCard;
     	}
@@ -326,7 +327,7 @@ public class Cardset {
      * @throws IllegalArgumentException Thrown if the alphabet is empty
      */
     public void setAlphabet(String alphabet) {
-    	if (isValidAlphabet(alphabet)) this.alphabet = alphabet;
+    	if (isValidAlphabet(alphabet)) this.alphabet = sortAlphabet(alphabet);
     	else throw new IllegalArgumentException("Alphabet is empty");
     }
     
@@ -611,6 +612,25 @@ public class Cardset {
 		int numRowsI = Integer.parseInt(number);
 		if (numRowsI < 1) return false;
 		else return true;
+    }
+    
+    /**
+     * Sort the characters in the specified alphabet string in ascending order
+     * @param alpha The string to sort
+     * @return The sorted string
+     */
+    private static String sortAlphabet(String alpha) {
+    	// If the alphabet is empty or only contains one character, just return it
+    	// as-is, as there's no point doing the actual sorting work:
+    	if (alpha == null || alpha.length() <= 1) return alpha;
+    	// The PPP specification requires that the alphabet be "sorted into ascending
+    	// ASCII order before use".  Neither Java nor Android use ASCII by default, but
+    	// this should still give us the same effect.  Split the alphabet string into
+    	// a character array, use Arrays.sort() to do the dirty work, and return a new
+    	// String with the sorted characters.
+    	char[] chars = alpha.toCharArray();
+    	Arrays.sort(chars);
+    	return new String(chars);
     }
   
 }
