@@ -223,7 +223,7 @@ public class SinglePasscodeActivity extends Activity {
 								ClipboardManager.newInstance(theApp);
 							clippy.setText(tb.getTextOn());
 							Toast.makeText(v.getContext(), 
-									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token), letters[col - 1] + row),
+									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token), row + letters[col - 1]),
 									Toast.LENGTH_SHORT).show();
 						}
 					// If something blew up, complain:

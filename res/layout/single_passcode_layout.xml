@@ -36,18 +36,6 @@
         </TableRow>
 	    <TableRow android:layout_height="wrap_content"
 			android:layout_width="fill_parent">
-	        <TextView android:id="@+id/single_pc_column_label"
-	        	android:text="@string/single_pc_column_label"
-	        	android:layout_width="wrap_content"
-	        	android:layout_height="wrap_content"
-            	android:paddingRight="20sp"></TextView>
-	        <Spinner android:id="@+id/single_pc_column_spin"
-	        	android:prompt="@string/single_pc_column_label"
-	        	android:layout_width="wrap_content"
-	        	android:layout_height="wrap_content"></Spinner>
-	    </TableRow>
-	    <TableRow android:layout_height="wrap_content"
-			android:layout_width="fill_parent">
 	        <TextView android:id="@+id/single_pc_row_label"
 	        	android:text="@string/single_pc_row_label"
 	        	android:layout_width="wrap_content"
@@ -55,6 +43,18 @@
             	android:paddingRight="20sp"></TextView>
 	        <Spinner android:id="@+id/single_pc_row_spin"
 	        	android:prompt="@string/single_pc_row_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></Spinner>
+	    </TableRow>
+	    <TableRow android:layout_height="wrap_content"
+			android:layout_width="fill_parent">
+	        <TextView android:id="@+id/single_pc_column_label"
+	        	android:text="@string/single_pc_column_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+            	android:paddingRight="20sp"></TextView>
+	        <Spinner android:id="@+id/single_pc_column_spin"
+	        	android:prompt="@string/single_pc_column_label"
 	        	android:layout_width="wrap_content"
 	        	android:layout_height="wrap_content"></Spinner>
 	    </TableRow>

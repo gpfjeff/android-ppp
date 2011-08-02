@@ -55,20 +55,6 @@
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:textStyle="bold"
-						android:id="@+id/labelNumColumnsPrompt"
-						android:text="@string/new_card_numcols_label"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="right"
-						android:id="@+id/labelNumColumnsValue"
-						android:text="7"></TextView>
-				</TableRow>
-				<TableRow android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:paddingBottom="5dp">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:textStyle="bold"
 						android:id="@+id/labelNumRowsPrompt"
 						android:text="@string/new_card_numrows_label"></TextView>
 					<TextView android:layout_width="wrap_content"
@@ -76,6 +62,20 @@
 						android:gravity="right"
 						android:id="@+id/labelNumRowsValue"
 						android:text="10"></TextView>
+				</TableRow>
+				<TableRow android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingBottom="5dp">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textStyle="bold"
+						android:id="@+id/labelNumColumnsPrompt"
+						android:text="@string/new_card_numcols_label"></TextView>
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:gravity="right"
+						android:id="@+id/labelNumColumnsValue"
+						android:text="7"></TextView>
 				</TableRow>
 				<TableRow android:layout_width="fill_parent"
 					android:layout_height="wrap_content"

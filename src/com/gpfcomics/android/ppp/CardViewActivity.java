@@ -368,7 +368,7 @@ public class CardViewActivity extends Activity implements
 								ClipboardManager.newInstance(theApp);
 							clippy.setText(tb.getTextOn());
 							Toast.makeText(v.getContext(), 
-									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token), letters[col - 1] + row),
+									getResources().getString(R.string.cardview_passcode_copied).replace(getResources().getString(R.string.meta_replace_token),  row + letters[col - 1]),
 									Toast.LENGTH_SHORT).show();
 						}
 					// Hopefully we won't need this, but we definitely need to catch
