@@ -26,7 +26,7 @@ Aside from creating the original concept and writing the original specification,
 
 ===What versions of the Perfect Paper Passwords specification is this app compatible with?===
 
-PPP for Android is compatible with version 3 of the PPP specification, meaning it should be usable with any PPP implementation.
+PPP for Android is compatible with version 3 of the PPP specification, meaning it should be usable with any PPP implementation. However, there may be practical limits on what size cards you can use with PPP for Android; see below for additional notes on these limitations.
 
 ==Card Set Maintenance==
 
