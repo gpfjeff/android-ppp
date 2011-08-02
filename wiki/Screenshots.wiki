@@ -19,3 +19,7 @@ http://www.cryptnos.com/files/media/ppp/ppp_card_set_details.png
 This is the main "card view", complete with several passcodes already "struck out". Strike out data is stored in the database so a history of your passcode use can be displayed as you scroll through the cards. Cards can be navigated by the "previous" and "next" buttons at the top of the screen, or by swiping your finger across the card. You can navigate to any arbitrary card by tapping the Menu button followed by "Go To" in the pop-up menu.
 
 http://www.cryptnos.com/files/media/ppp/ppp_card_view.png
+
+This is the "single passcode" view available on "small" device screens. "Small" Android devices cannot practically display the complete card view; to fit the entire card on the screen, the passcode font must be so small that the text is unreadable and the passcodes are almost impossible to "strike out". This view allows small devices to still use PPP for Android by displaying a single passcode at a time, specified by the card, row, and column numbers. "Strike out" data is still stored in the database so the passcode history is still maintained.
+
+http://www.cryptnos.com/files/media/ppp/ppp_single_passcode.png
