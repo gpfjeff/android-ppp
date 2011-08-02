@@ -1,4 +1,5 @@
 #summary Sample screenshots of the PPP for Android UI
+#labels Featured,Phase-Design
 
 = Screenshots =
 
@@ -23,3 +24,7 @@ http://www.cryptnos.com/files/media/ppp/ppp_card_view.png
 This is the "single passcode" view available on "small" device screens. "Small" Android devices cannot practically display the complete card view; to fit the entire card on the screen, the passcode font must be so small that the text is unreadable and the passcodes are almost impossible to "strike out". This view allows small devices to still use PPP for Android by displaying a single passcode at a time, specified by the card, row, and column numbers. "Strike out" data is still stored in the database so the passcode history is still maintained.
 
 http://www.cryptnos.com/files/media/ppp/ppp_single_passcode.png
+
+Finally, proof that PPP for Android runs on tablets, too! This is the card view again, this time running under Android 3.0 on another instance of the emulator. PPP is fully forward-compatible, although it does not make the most efficient use of space on larger screen devices yet.
+
+http://www.cryptnos.com/files/media/ppp/ppp_card_view_honeycomb.png
