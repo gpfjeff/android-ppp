@@ -1,0 +1,21 @@
+#summary Sample screenshots of the PPP for Android UI
+
+= Screenshots =
+
+These screenshots are taken using the Android Emulator running Android 1.6 ("Donut"). Other versions of Android will look similar, although some controls may have different appearances or "themes" based on the version of Android currently being used.
+
+This is the card set list or "main menu", displaying the names of all card sets in the database. This is a scrolling list, so you can have as many card sets in your database as your device's memory can hold. The big "plus" button is the "add" or "new" button, allowing you to add new card sets to the database.
+
+http://www.cryptnos.com/files/media/ppp/ppp_card_set_list.png
+
+This is the new card set screen, which allows you to specify your card set parameters: name, rows, columns, passcode length, alphabet, and sequence key. The "Create Card Set" button is below the sequence key field, but is currently scrolled off the view port.
+
+http://www.cryptnos.com/files/media/ppp/ppp_card_set_edit.png
+
+The card set details list is accessible from the main card set list by doing a "tap and hold" on the card set name in the list, then choosing "Details". This is a read-only view of the card set parameters, including a count of all "strike outs" in the database.
+
+http://www.cryptnos.com/files/media/ppp/ppp_card_set_details.png
+
+This is the main "card view", complete with several passcodes already "struck out". Strike out data is stored in the database so a history of your passcode use can be displayed as you scroll through the cards. Cards can be navigated by the "previous" and "next" buttons at the top of the screen, or by swiping your finger across the card. You can navigate to any arbitrary card by tapping the Menu button followed by "Go To" in the pop-up menu.
+
+http://www.cryptnos.com/files/media/ppp/ppp_card_view.png
