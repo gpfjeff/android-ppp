@@ -1,5 +1,5 @@
 #summary A brief summary of the goal of bringing Perfect Paper Passwords to Android
-#labels Phase-Design
+#labels Phase-Design,Featured
 
 = Introduction =
 
