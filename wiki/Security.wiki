@@ -1,0 +1,21 @@
+#summary Security concerns and disclaimers
+
+= The PPP for Android Password =
+
+It is strongly recommended that all users set a password through the Settings menu item on most screens of the application. Not only does this protect access to PPP for Android by disallowing unauthorized users from accessing any of the screens, but it also encrypts the sequence keys for each card set stored in the database.
+
+By default, all card set data is stored unencrypted, meaning it may potentially be compromised if the device is stolen. A malicious user may connect your device to a computer and extract the PPP for Android database using commonly available debugging tools. Similarly, while Android provides numerous protection mechanisms to prevent other applications from accessing PPP for Android's data, "rooted" devices or flaws in the operating system may provide windows for malware to access unencrypted data without your knowledge. Either of these scenarios may expose your passcode data to attack.
+
+If a master password is set in PPP for Android, the sequence keys in the database are encrypted using a strong pseudo-random key generated from the user's password. If the device is stolen after a password is set, the sequence keys for all stored card sets should be safe from attack.
+
+PPP for Android does not encrypt any other portion of your card set data. The theory behind this decision is that encryption is an expensive process for small, low-powered devices like mobile phones and should only be used when necessary. While the other card set parameters are essential for defining a card set, the sequence key is the most unique and arguably the most critical parameter. The sequence key is not ordinarily exposed in the original paper-based implementation and thus requires a higher level of protection.
+
+It could be argued that historical "strike out" data also deserves to be protected. However, since PPP was designed such that a given passcode is used only once, it is assumed that revealing old, already used passcodes is less of a security risk. Since the structure of this historical data within PPP for Android does not reveal the passcodes themselves (only their position within the sequence), we did not feel it was critical to encrypt this data at this time.
+
+= Caveats to the Card Set Model =
+
+One of the advantages of the original Perfect Paper Passwords model is that only a limited subset of the entire passcode sequence is exposed "to the outside" at any given time. Users typically print only a few cards at a time (the suggested number is three), which can then be folded and carried upon one's person. If the printed cards are then lost or stolen, the server-side sequence can be moved forward, jumping ahead of the current card and thus invalidating the missing cards.
+
+PPP for Android works much like the server side component of the PPP system in that it provides access to the entire passcode sequence. Users may scroll to any card in the sequence at any time, moving forward or back to either end of the set. As such it presents a far greater risk to the security of your protected logins if your device is lost or stolen than if a handful of printed cards go missing. Users should take great care when using PPP for Android that their devices are secure and free from viruses, spyware, and other malware.
+
+If your device storing your PPP data is ever lost, stolen, or believed to be compromised, you should contact the services with which you use PPP to authenticate as soon as possible. You should have the service invalidate your PPP sequence key and generate a new one, effectively starting over with a new card set. You may then create a new card set in PPP for Android matching this new sequence key once you have procured a replacement device.
