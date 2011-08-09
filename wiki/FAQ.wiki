@@ -11,15 +11,15 @@
 
 Several PPP clients exist for other platforms, including other Java-enabled phones. Android is a powerful, growing smartphone platform that is easy to program for. The developers of PPP for Android would like to see a simple yet powerful PPP client for their favorite mobile platform.
 
-===Can I use PPP for Android with my GMail/Yahoo!/Facebook/etc. account? Can I use it to store my existing passwords?===
+===Can I use PPP for Android with my GMail/Yahoo!/Facebook/etc. account? Can I use it to store my existing passwords? Can it generate arbitrary passwords for me?===
 
 Unfortunately, no. PPP for Android is not a password vault or manager that stores arbitrary passwords. PPP is a multi-factor authentication system that requires both a client and server component. That means that the service you wish to authentication with must provide PPP as an option or requirement before you can use PPP for Android. Most major services like Google, Yahoo!, Facebook, etc. do not currently support PPP. However, many other services are adding PPP as a cheap method for increasing login security. If you are uncertain whether or not your service uses PPP, please contact the service's system administrator or customer support. If they do use PPP, you should be able to use PPP for Android to manage your passcodes, assuming they provide you with the parameters to recreate the passcode sequence.
 
 ===Why keep the card metaphor? Wouldn't it be easier to just specify the card, row, and column and get the passcode?===
 
-That's what some of the other clients do, yes, and we do this small-sized screens that cannot display the full card practically. (See additional questions below regarding small-sized screens.) It's definitely a simpler interface and straight to the point, eliminating seemingly unnecessary data.
+That's what some of the other clients do, yes, and we do this for small-sized screens that cannot display the full card practically. (See additional questions below regarding small-sized screens.) It's definitely a simpler interface and straight to the point, eliminating seemingly unnecessary data.
 
-That said, we think that extra card data _is_ necessary. Viewing the entire card, complete with "strike-outs" of used passcodes, provides valuable history data on how the sequence is being used. By looking at which passcodes have and have not been stricken, you can, for example, see if there have been potential unauthorized log in attempts for your ID. While the physical printed PPP cards are a bit outdated in this digital age, the data they provide can give insight into how the account is used. PPP for Android keeps this metaphor and all its advantages, at the same time eliminating the "paper".
+That said, we think that extra card data _is_ necessary. Viewing the entire card, complete with "strike-outs" of used passcodes, provides valuable history data on how the sequence is being used. By looking at which passcodes have and have not been stricken, you can, for example, see if there have been potential unauthorized login attempts for your ID. While the physical printed PPP cards may seem a bit outdated in this digital age, the data they provide can give insight into how the account is used. PPP for Android keeps this metaphor and all its advantages, at the same time eliminating the "paper".
 
 ===Is Steven Gibson involved with this project?===
 
