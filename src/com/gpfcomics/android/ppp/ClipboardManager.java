@@ -53,8 +53,8 @@ import android.os.Build;
  * provides a wrapper around the API-specific versions of the class to return
  * the proper object for the platform we're currently running on.
  * @author Jeffrey T. Darlington
- * @version 1.2.5
- * @since 1.2.5
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class ClipboardManager {
 	
@@ -83,7 +83,7 @@ public abstract class ClipboardManager {
 		// If the API number is less than Honeycomb (Android 3.0, or API 11),
 		// return the old clipboard manager.  Otherwise, get the newer version.
 		// This should be safe because the compiler hard-codes the version
-		// code during compliation.
+		// code during compilation.
 		if (sdkVersion < Build.VERSION_CODES.HONEYCOMB)
 			return new OldClipboardManager();
 		else return new HoneycombClipboardManager();
@@ -92,19 +92,24 @@ public abstract class ClipboardManager {
 	/**
 	 * The old ClipboardManager, which is a under android.text.  This is
 	 * the version to use for all Android versions less than 3.0. 
+	 * 
+	 * @author Jeffrey T. Darlington
 	 */
 	private static class OldClipboardManager extends ClipboardManager {
 		
 		/** The actual ClipboardManager object */
+		@SuppressWarnings("deprecation")
 		private static android.text.ClipboardManager clippy = null;
 		
 		/** Our constructor */
+		@SuppressWarnings("deprecation")
 		public OldClipboardManager()
 		{
 			clippy = (android.text.ClipboardManager)theApp.getSystemService(
 					android.content.Context.CLIPBOARD_SERVICE);
 		}
 		
+		@SuppressWarnings("deprecation")
 		@Override
 		public void setText(CharSequence text)
 		{
@@ -113,6 +118,15 @@ public abstract class ClipboardManager {
 
 	}
 	
+	/**
+	 * The Honeycomb-and-up version of the clipboard manager, this time derived from
+	 * android.content.  This version technically supports more content types than
+	 * just text, but we frankly don't care about that in PPP.  We just want to make
+	 * sure that when the deprecated android.text.ClipboardManager class finally goes
+	 * away, our application won't break.
+	 * 
+	 * @author Jeffrey T. Darlington
+	 */
 	private static class HoneycombClipboardManager extends ClipboardManager {
 		
 		/** The actual ClipboardManager object */

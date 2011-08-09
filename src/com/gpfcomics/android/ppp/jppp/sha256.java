@@ -1,6 +1,9 @@
 /**
  * @(#)SHA256.java
  *
+ * Slight modifications by Jeffrey T. Darlington in support of PPP for Android to
+ * comment out a number of methods and variables that are never used, thus taking up
+ * wasted memory and causing warning messages to pop up in Eclipse.
  *
  * @author 
  * @version 1.00 2008/2/11
@@ -37,17 +40,21 @@ public class sha256{
 	public sha256(){
 	}
 	
+	/*
 	private long min(long x, long y){
 		return (x<y) ? x : y;
 	}
+	*/
 	
 	private long ROTRN(long x, long n){
 		return ((x>>n)|(x<<(32-n)));
 	}
 	
+	/*
 	private long ROTLN(long x, long n){
 		return ((x<<n)|(x>>(32-n)));
 	}
+	*/
 	
 	private long SHRN(long x, long n){
 		return (x>>n);
@@ -92,7 +99,7 @@ public class sha256{
 		long[] A = new long[8];
 		long[] W = new long[80];
 		long modulo =(long) Math.pow(2,32);
-		BigInteger bi = new BigInteger(buf);
+		//BigInteger bi = new BigInteger(buf);
 		byte[] temp = new byte[4];
 		
 		for (int i = 0; i < 16; i++){
@@ -145,7 +152,7 @@ public class sha256{
 		byte[] message = s.getBytes ();
 		long count = 0;
 	  	byte[] buffer = new byte[64];
-	  	int blocklen = 0;
+	  	//int blocklen = 0;
 	  	String str="", hashVal="";
 	 	try{
 	  		int noOfBlocks = blockNumber(message);
@@ -163,7 +170,7 @@ public class sha256{
 						}
 					
 				
-		 	BigInteger bi = new BigInteger(buffer);
+		 	//BigInteger bi = new BigInteger(buffer);
 			
 				if(((flag==false)&&(counter == noOfBlocks-1))||((flag==true)&&(counter==noOfBlocks-2))){
 		   			buffer[lastBlock] = (byte)0x80; 
@@ -199,7 +206,7 @@ public class sha256{
 			   			}
 			   		}
 				}
-				BigInteger kk = new BigInteger(buffer);
+				//BigInteger kk = new BigInteger(buffer);
 			    compress(buffer);
 	   		}
 	 	}

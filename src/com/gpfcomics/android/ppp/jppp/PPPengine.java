@@ -1,6 +1,7 @@
 /**
  * @(#)PPPtest.java
  *
+ * Note: Slight modifications made by Jeffrey T. Darlington to support PPP for Android
  *
  * @author Kurt Nelson
  * @version 1.01 2008/4/6
@@ -26,7 +27,9 @@ public class PPPengine {
 
 	public static void setAlphabet(String alphabetIn){
 		ALPHABET = alphabetIn.toCharArray ();
-    	ALPHABET = alphaSort(ALPHABET);
+		// JTD 8/9/2011: Commenting out the alphabet sort because we've already sorted
+		// the alphabet when we initially stored it.
+    	//ALPHABET = alphaSort(ALPHABET);
 	}
 
 	public static void setCardColumns(int columns){
@@ -166,6 +169,8 @@ public class PPPengine {
 		return out;
     }
 
+    /* JTD 8/9/2011:  Since we're not doing the sorting internally anymore, we don't
+     * need this method.  Commenting it out for now.
     private static char[] alphaSort(char[] in){
     	for ( int i = 0; i < in.length; ++i ) {
 	    	for ( int j = i + 1; j < in.length; ++j ) {
@@ -177,7 +182,7 @@ public class PPPengine {
 	    	}
 		}
 		return in;
-    }
+    }*/
 
 /* JTD 3/8/2011: Commenting out this method just to get Eclipse to stop complaining.
  * This method is never used anywhere, so it produces a warning in Eclipse.
