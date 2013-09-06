@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <ScrollView
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"> 
+	<LinearLayout android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+    <TextView android:id="@+id/cardset_edit_name_label"
+    	android:text="@string/new_card_name_label"
+    	android:textSize="20sp"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"></TextView>
+    <EditText android:id="@+id/cardset_edit_name_edit"
+    	android:text="@string/new_card_name_default"
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"></EditText>
+    <TableLayout android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"
+    	android:shrinkColumns="1"
+    	android:stretchColumns="0"
+    	android:padding="10dp">
+	    <TableRow android:layout_height="wrap_content"
+	    	android:layout_width="fill_parent">
+	        <TextView android:id="@+id/cardset_edit_rows_label"
+	        	android:text="@string/new_card_numrows_label"
+	        	android:textSize="20sp"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></TextView>
+	        <EditText android:id="@+id/cardset_edit_rows_edit"
+	        	android:text="10"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	        	android:inputType="number"
+	        	android:gravity="right"></EditText>
+	    </TableRow>
+        <TableRow android:layout_width="wrap_content"
+        	android:layout_height="wrap_content">
+            <TextView android:id="@+id/cardset_edit_columns_label"
+            	android:text="@string/new_card_numcols_label"
+            	android:textSize="20sp"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"></TextView>
+            <EditText android:id="@+id/cardset_edit_columns_edit"
+            	android:text="7"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:gravity="right"
+            	android:inputType="number"></EditText>
+        </TableRow>
+	    <TableRow android:layout_height="wrap_content"
+			android:layout_width="fill_parent">
+	        <TextView android:id="@+id/cardset_edit_pclength_label"
+	        	android:text="@string/new_card_pclength_label"
+	        	android:textSize="20sp"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></TextView>
+	        <Spinner android:id="@+id/cardset_edit_pclength_spin"
+	        	android:entries="@array/passcodeLengths"
+	        	android:prompt="@string/cardset_edit_pclength_prompt"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></Spinner>
+	    </TableRow>
+    </TableLayout>
+    <TextView android:id="@+id/cardset_edit_alpha_label"
+    	android:text="@string/new_card_alphabet_label"
+    	android:textSize="20sp"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"></TextView>
+    <EditText android:id="@+id/cardset_edit_alpha_edit"
+    	android:text="!#%+23456789:=?@ABCDEFGHJKLMNPRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"></EditText>
+    <TextView android:id="@+id/cardset_edit_seqkey_label"
+    	android:text="@string/new_card_seqkey_label"
+    	android:textSize="20sp"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"></TextView>
+    <EditText android:id="@+id/cardset_edit_seqkey_edit"
+    	android:text="F01945CD73A70344778065197A568603BC37159719B64FF68ECD64703B681425"
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"></EditText>
+    <Button android:id="@+id/cardset_edit_add_btn"
+    	android:text="@string/new_card_create_btn"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"></Button>
+	</LinearLayout>
+	</ScrollView>
+</LinearLayout>

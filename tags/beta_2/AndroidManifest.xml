@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.gpfcomics.android.ppp"
+      android:versionCode="2"
+      android:installLocation="auto" android:versionName="1.0 BETA 2">
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="11"/>
+	<supports-screens
+		android:xlargeScreens="true"
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:smallScreens="true"
+		android:anyDensity="true"
+		android:resizeable="true"/>
+
+    <application android:label="@string/app_name"
+    	android:name="PPPApplication" android:icon="@drawable/launcher_icon">
+        <activity android:name=".PasswordPromptActivity"
+            android:label="@string/app_name"
+        	android:stateNotNeeded="true"
+        	android:clearTaskOnLaunch="true"
+            android:allowBackup="true"
+        	android:alwaysRetainTaskState="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainMenuActivity"
+            android:label="@string/app_name"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:alwaysRetainTaskState="false">
+        </activity>
+        <activity android:name=".CardViewActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false"></activity>
+        <activity android:name=".SinglePasscodeActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false"></activity>
+        <activity android:name=".CardsetDetailsActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false"></activity>
+        <activity android:name=".NewCardActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+			android:excludeFromRecents="true"
+			android:allowTaskReparenting="false">
+        </activity>
+        <activity android:name=".AboutActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false">
+        </activity>
+        <activity android:name=".SettingsActivity"
+        	android:label="@string/app_name"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false">
+        </activity>
+        <activity android:name=".HelpActivity"
+        	android:label="@string/help_title"
+        	android:clearTaskOnLaunch="true"
+        	android:noHistory="true"
+        	android:exported="false"
+        	android:stateNotNeeded="true"
+        	android:enabled="true"
+        	android:alwaysRetainTaskState="false"
+        	android:excludeFromRecents="true" 
+        	android:allowTaskReparenting="false">
+        </activity>
+    </application>
+</manifest>

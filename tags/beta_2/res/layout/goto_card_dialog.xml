@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <EditText android:id="@+id/goto_dlg_card_num"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:text="1"
+    	android:gravity="center"
+    	android:inputType="number"></EditText>
+    <TableLayout android:id="@+id/tableLayout1"
+    	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    	android:stretchColumns="0,1">
+        <TableRow android:id="@+id/tableRow1"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content">
+            	<Button android:id="@+id/btn_goto_go"
+            		android:text="@string/dialog_goto_card_go_btn"
+            		android:layout_width="fill_parent"
+            		android:layout_height="wrap_content"></Button>
+            	<Button android:id="@+id/btn_goto_cancel"
+            		android:text="@string/dialog_goto_card_cancel_btn"
+            		android:layout_width="fill_parent"
+            		android:layout_height="wrap_content"></Button>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

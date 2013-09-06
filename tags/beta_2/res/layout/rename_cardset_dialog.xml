@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <EditText android:id="@+id/rename_dialog_name_box"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:text=""
+    	android:gravity="center"></EditText>
+    <TableLayout android:id="@+id/tableLayout1"
+    	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    	android:stretchColumns="0,1">
+        <TableRow android:id="@+id/tableRow1"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content">
+            	<Button android:id="@+id/btn_rename"
+            		android:text="@string/dialog_rename_rename_btn"
+            		android:layout_width="fill_parent"
+            		android:layout_height="wrap_content"></Button>
+            	<Button android:id="@+id/btn_rename_cancel"
+            		android:text="@string/dialog_goto_card_cancel_btn"
+            		android:layout_width="fill_parent"
+            		android:layout_height="wrap_content"></Button>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

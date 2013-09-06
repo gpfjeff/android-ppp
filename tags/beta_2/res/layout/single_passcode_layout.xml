@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <ScrollView
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"> 
+	<LinearLayout android:orientation="vertical"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+    <TextView android:id="@+id/single_pc_cardset_label"
+    	android:text="Unnamed Card Set"
+    	android:textSize="24sp"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:gravity="center"
+    	android:paddingBottom="10sp" android:textStyle="bold"></TextView>
+    <TableLayout android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"
+    	android:shrinkColumns="0"
+    	android:stretchColumns="1">
+        <TableRow android:layout_width="wrap_content"
+        	android:layout_height="wrap_content">
+            <TextView android:id="@+id/single_pc_cardnum_label"
+            	android:text="@string/single_pc_cardnum_label"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:paddingRight="20sp"></TextView>
+            <EditText android:id="@+id/single_pc_cardnum_edit"
+            	android:text="1"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:gravity="right"
+            	android:inputType="number"></EditText>
+        </TableRow>
+	    <TableRow android:layout_height="wrap_content"
+			android:layout_width="fill_parent">
+	        <TextView android:id="@+id/single_pc_row_label"
+	        	android:text="@string/single_pc_row_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+            	android:paddingRight="20sp"></TextView>
+	        <Spinner android:id="@+id/single_pc_row_spin"
+	        	android:prompt="@string/single_pc_row_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></Spinner>
+	    </TableRow>
+	    <TableRow android:layout_height="wrap_content"
+			android:layout_width="fill_parent">
+	        <TextView android:id="@+id/single_pc_column_label"
+	        	android:text="@string/single_pc_column_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+            	android:paddingRight="20sp"></TextView>
+	        <Spinner android:id="@+id/single_pc_column_spin"
+	        	android:prompt="@string/single_pc_column_label"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"></Spinner>
+	    </TableRow>
+    </TableLayout>
+    <ToggleButton android:id="@+id/single_pc_toggle_button"
+    	android:text="xxxx"
+    	android:textSize="24sp"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:textOn="xxxx"
+    	android:textOff="xxxx"
+    	android:background="@drawable/strikethru_off"
+    	android:typeface="monospace"
+    	android:textColor="@android:color/secondary_text_dark"
+    	android:layout_gravity="center_horizontal" />
+	</LinearLayout>
+	</ScrollView>
+</LinearLayout>
