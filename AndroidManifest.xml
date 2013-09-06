@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.gpfcomics.android.ppp"
-      android:versionCode="1"
-      android:installLocation="auto" android:versionName="1.0 BETA">
-    <uses-sdk android:minSdkVersion="2" android:targetSdkVersion="11"/>
+      android:versionCode="2"
+      android:installLocation="auto" android:versionName="1.0 BETA 2">
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="11"/>
 	<supports-screens
 		android:xlargeScreens="true"
 		android:largeScreens="true"
@@ -18,6 +18,7 @@
             android:label="@string/app_name"
         	android:stateNotNeeded="true"
         	android:clearTaskOnLaunch="true"
+            android:allowBackup="true"
         	android:alwaysRetainTaskState="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

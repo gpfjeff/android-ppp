@@ -10,7 +10,10 @@
  * as well as storing centralized routines dealing with passwords, ciphers,
  * and settings.
  * 
- * This program is Copyright 2011, Jeffrey T. Darlington.
+ * UPDATE FOR 1.0 BETA 2:  Apply the broken Android SecureRandom fix; see
+ * http://android-developers.blogspot.com/2013/08/some-securerandom-thoughts.html
+ * 
+ * This program is Copyright 2013, Jeffrey T. Darlington.
  * E-mail:  android_apps@gpf-comics.com
  * Web:     https://code.google.com/p/android-ppp/
  * 
@@ -44,6 +47,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.widget.Toast;
 
 /**
  * This class encapsulates functionality common to all activities within the Perfect
@@ -213,6 +217,19 @@ public class PPPApplication extends Application {
 			// If there's currently a password set, we need to set up our cipher
 			// for encryption and decryption:
 			if (promptForPassword()) createCipher();
+			// Apply PRNG fixes to broken versions of SecureRandom.
+			// Note that the only place we really need SecureRandom is for the
+			// generation of new sequence keys, so if the fixes cannot be applied,
+			// we should warn the user not to trust them.  Sequence keys generated
+			// somewhere else shouldn't a problem (assuming that the source of those
+			// keys *can* be trusted).
+			try { PRNGFixes.apply(); }
+			catch (SecurityException se) {
+				Toast.makeText(getApplicationContext(),
+						getResources().getString(R.string.error_prng_init_failed),
+						Toast.LENGTH_LONG).show();
+			}
+			
 		} catch (Exception e) {
 			// I'm not sure what to do here if something blows up. :\
 		}
