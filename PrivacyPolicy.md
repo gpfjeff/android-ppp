@@ -1,0 +1,9 @@
+Our privacy policy is very short. The bottom line is: we don't collect your data because we don't want your data. In our opinion, your data belongs to you and we have no business snooping around in it. Pure and simple.
+
+Perfect Paper Passwords for Android stores only the necessary data required for the application to operate. This consists solely of the parameters required to generate each card series, as well as the "strike-through" data for passcodes that have already been used. If the user does not elect to set a master password, this data is stored unencrypted; if a master password is set, key elements of the stored data will be encrypted to prevent the recreation of passcodes without the password.
+
+PPP for Android will _**NEVER**_ transmit your passcodes or card series data off of your device for any reason. It does not request permission to access the Internet or any external storage (i.e. SD cards, etc.) for this very reason.
+
+If you elect to enable the feature that copies your passcodes to the system clipboard, your passcodes may be visible to other applications running on your device. Since PPP passcodes are used only once, we believe the threat window during which a passcode may be compromised in this manner is small. Still, the security of your passcodes may be enhanced by disabling this feature.
+
+Note that this privacy policy applies only to the PPP for Android application itself. Any website or service that you use in conjunction with PPP for Android (i.e. any service that uses PPP for authentication) will be governed by its own privacy policy and is outside of our control.
